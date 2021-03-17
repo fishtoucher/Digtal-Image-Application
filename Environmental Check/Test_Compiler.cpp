@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int main()
+int __test_compiler()
 {
 	cout << "test" << endl;
 	return 0;

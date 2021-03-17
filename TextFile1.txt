@@ -1,0 +1,7 @@
+VC++目录\包含目录		C:\opencv\build\include
+						C:\opencv\build\include\opencv2
+VC++目录\库目录			C:\opencv\build\x64\vc15\lib
+C/C++\常规\附加包含目录	C:\opencv\build\x64\vc15\lib
+链接器\常规\附加库目录	C:\opencv\build\x64\vc15\lib
+链接器\输入\附加依赖项	opencv_world451d.lib
+

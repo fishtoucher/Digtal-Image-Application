@@ -3,9 +3,9 @@
 using namespace std;
 using namespace cv;
 
-int main(int argc, char* argv[])
+int __test_opencv()
 {
-	const char* imagename = "C:\\v2-1fa0ee3dc53c4be2506132ea09fc3711_720w.jpg"; //此处为你自己的图片路径
+	const char* imagename = "C:\\Users\\黄铖\\source\\repos\\ConsoleApplication1\\tram.jpg"; //此处为你自己的图片路径
 
 	//从文件中读入图像
 	Mat img = imread(imagename, 1);
