@@ -3,17 +3,18 @@
 using namespace std;
 using namespace cv;
 
-int main(int argc, char* argv[])
+//int __test_opencv()
+int main()
 {
-	const char* imagename = "C:\\v2-1fa0ee3dc53c4be2506132ea09fc3711_720w.jpg"; //此处为你自己的图片路径
-
+	string imagename = "E:\\Visual_Studio_code\\Digtal Image\\tram.jpg";//此处为你自己的图片路径
+	//printf("%s\n",imagename);
 	//从文件中读入图像
 	Mat img = imread(imagename, 1);
 
 	//如果读入图像失败
 	if (img.empty())
 	{
-		fprintf(stderr, "Can not load image %s\n", imagename);
+		printf("Can not load image\n");
 		return -1;
 	}
 	//显示图像
