@@ -7,3 +7,6 @@ C/C++\常规\附加包含目录	C:\opencv\build\x64\vc15\lib
 
 LocalBranch
 
+GtiHub Test
+
+
