@@ -145,7 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MainTest.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Test_Compiler.cpp" />
     <ClCompile Include="Test_OpenCV4.cpp" />
