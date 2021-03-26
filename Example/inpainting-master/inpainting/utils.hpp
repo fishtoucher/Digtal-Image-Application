@@ -13,9 +13,11 @@
 #include <iostream>
 #include <cmath>
 
-typedef std::vector<std::vector<cv::Point>> contours_t;
-typedef std::vector<cv::Vec4i> hierarchy_t;
-typedef std::vector<cv::Point> contour_t;
+using namespace cv;
+
+typedef std::vector<std::vector<Point>> contours_t;
+typedef std::vector<Vec4i> hierarchy_t;
+typedef std::vector<Point> contour_t;
 
 
 // Patch raduius
@@ -26,28 +28,28 @@ typedef std::vector<cv::Point> contour_t;
 int mod(int a, int b);
 
 void loadInpaintingImages(
-                          const std::string& colorFilename,
+                          const std::string& srcFilename,
                           const std::string& maskFilename,
-                          cv::Mat& colorMat,
-                          cv::Mat& maskMat,
-                          cv::Mat& grayMat);
+                          Mat& srcMat,
+                          Mat& maskMat,
+                          Mat& grayMat);
 
-void showMat(const cv::String& winname, const cv::Mat& mat, int time=5);
+void showMat(const String& winname, const Mat& mat, int time=5);
 
-void getContours(const cv::Mat& mask, contours_t& contours, hierarchy_t& hierarchy);
+void getContours(const Mat& mask, contours_t& contours, hierarchy_t& hierarchy);
 
-double computeConfidence(const cv::Mat& confidencePatch);
+double getCterm(const Mat& Patch_C);
 
-cv::Mat getPatch(const cv::Mat& image, const cv::Point& p);
+Mat getPatch(const Mat& image, const Point& p);
 
-void getDerivatives(const cv::Mat& grayMat, cv::Mat& dx, cv::Mat& dy);
+void getDerivatives(const Mat& grayMat, Mat& dx, Mat& dy);
 
-cv::Point2f getNormal(const contour_t& contour, const cv::Point& point);
+Point2f getNormal(const contour_t& contour, const Point& point);
 
-void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat);
+void computePriority(const contours_t& contours, const Mat& grayMat, const Mat& confidenceMat, Mat& priorityMat);
 
-void transferPatch(const cv::Point& psiHatQ, const cv::Point& psiHatP, cv::Mat& mat, const cv::Mat& maskMat);
+void transferPatch(const Point& psiHatQ, const Point& psiHatP, Mat& mat, const Mat& maskMat);
 
-cv::Mat computeSSD(const cv::Mat& tmplate, const cv::Mat& source, const cv::Mat& tmplateMask);
+Mat computeSSD(const Mat& tmplate, const Mat& source, const Mat& tmplateMask);
 
 #endif

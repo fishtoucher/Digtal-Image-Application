@@ -36,6 +36,12 @@
     <Image Include="inpainting-master\inpainting\input-color.png">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="55s.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="55smask.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inpainting-master\inpainting\inpainting.cpp">
