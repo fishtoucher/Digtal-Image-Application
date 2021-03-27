@@ -36,20 +36,24 @@ int main (int argc, char** argv) {
         return -1;
     }
 
+    //读取图像文件
     Mat srcMat, maskMat, grayMat;
     loadInpaintingImages(srcFilename,maskFilename,srcMat,maskMat,grayMat);
 
+    //可信度C矩阵
     Mat confidenceMat;
     maskMat.convertTo(confidenceMat, CV_32F);
     confidenceMat /= 255.0f;
     
-	copyMakeBorder(maskMat, maskMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0);
-    copyMakeBorder(confidenceMat, confidenceMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0.0001f);
+    //破损区1，其余为0
+    //cout << confidenceMat << endl;
 
-    contours_t contours;            // mask contours
-    hierarchy_t hierarchy;          // contours hierarchy
- 
-    Mat priorityMat(confidenceMat.size(),CV_32FC1);
+	copyMakeBorder(maskMat, maskMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0);
+    copyMakeBorder(confidenceMat, confidenceMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0);
+
+    contours_t contours;            // 轮廓点
+    hierarchy_t hierarchy;          // 辅助定义轮廓
+    Mat priorityMat(confidenceMat.size(),CV_32FC1);//优先权P矩阵
     
     assert(srcMat.size() == grayMat.size() &&srcMat.size() == confidenceMat.size() &&srcMat.size() == maskMat.size());
     
@@ -70,68 +74,78 @@ int main (int argc, char** argv) {
     //==========================================================================
     // eroded mask is used to ensure that psiHatQ is not overlapping with target
     erode(maskMat, erodedMask, Mat(), Point(-1, -1), RADIUS);
-    
+
     Mat drawMat;
     
     
     // main loop
     const size_t area = maskMat.total();
+    cout << countNonZero(maskMat) << endl;
     
-    while (countNonZero(maskMat) != area)   // end when target is filled
+    //while (countNonZero(maskMat) != area)   // end when target is filled
+    while (countNonZero(maskMat)!=0)
     {
-        // set priority matrix to -.1, lower than 0 so that border area is never selected
+        //初始化P矩阵
         priorityMat.setTo(-0.1f);
         
-        // get the contours of mask
+        //得到边界
         getContours((maskMat == 0), contours, hierarchy);
         
         if (DEBUG) {
             drawMat = srcMat.clone();
         }
         
-        // compute the priority for all contour points
+        //计算P矩阵
+        cout << confidenceMat << endl;
         computePriority(contours, grayMat, confidenceMat, priorityMat);
 
-        // get the patch with the greatest priority
+        //取最大优先权的点P
         minMaxLoc(priorityMat, NULL, NULL, NULL, &psiHatP);
+
         psiHatPColor = getPatch(srcMat, psiHatP);
         psiHatPConfidence = getPatch(confidenceMat, psiHatP);
-        
+
         Mat confInv = (psiHatPConfidence != 0.0f);
         confInv.convertTo(confInv, CV_32F);
         confInv /= 255.0f;
+
         // get the patch in source with least distance to psiHatPColor wrt source of psiHatP
         Mat mergeArrays[3] = {confInv, confInv, confInv};
         merge(mergeArrays, 3, templateMask);
         result = computeSSD(psiHatPColor, srcMat, templateMask);
-        
+
         // set all target regions to 1.1, which is over the maximum value possilbe
         // from SSD
         result.setTo(1.1f, erodedMask);
         // get minimum point of SSD between psiHatPColor and srcMat
         minMaxLoc(result, NULL, NULL, &psiHatQ);
         
-        //assert(psiHatQ != psiHatP);
+        cout << result.at<float>(psiHatQ.x, psiHatQ.y) << endl;
+        cout << psiHatP << " " << psiHatQ << endl;
+        assert(psiHatQ != psiHatP);
         
         if (DEBUG) {
         rectangle(drawMat, psiHatP - Point(RADIUS, RADIUS), psiHatP + Point(RADIUS+1, RADIUS+1), Scalar(255, 0, 0));
         rectangle(drawMat, psiHatQ - Point(RADIUS, RADIUS), psiHatQ + Point(RADIUS+1, RADIUS+1), Scalar(0, 0, 255));
         showMat("red - psiHatQ", drawMat);
         }
-        
         // updates
         // copy from psiHatQ to psiHatP for each colorspace
         transferPatch(psiHatQ, psiHatP, grayMat, (maskMat == 0));
         transferPatch(psiHatQ, psiHatP, srcMat, (maskMat == 0));
-        
+
         // fill in confidenceMat with confidences C(pixel) = C(psiHatP)
         confidence = getCterm(psiHatPConfidence);
+
         assert(0 <= confidence && confidence <= 1.0f);
+        //=========================================================================
         // update confidence
-        psiHatPConfidence.setTo(confidence, (psiHatPConfidence == 0.0f));
+        //psiHatPConfidence.setTo(confidence, (psiHatPConfidence == 0.0f));
+        psiHatPConfidence.setTo(0);
+
         // update maskMat
         maskMat = (confidenceMat != 0.0f);
-    }
+	}
     
     showMat("final result", srcMat, 0);
     return 0;

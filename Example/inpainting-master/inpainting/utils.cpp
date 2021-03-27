@@ -151,7 +151,7 @@ Point2f getNormal(const contour_t& contour, const Point& point)
 //返回补丁的C项值
 double getCterm(const Mat& temp)
 {
-	return sum(temp)[0] / (double)temp.total();
+	return ((2 * RADIUS + 1) * (2 * RADIUS + 1) -sum(temp)[0]) / (double)temp.total();
 }
 
 //计算优先矩阵，C项*D项
@@ -173,7 +173,9 @@ void computePriority(const contours_t& contours, const Mat& grayMat, const Mat& 
 	magnitude(dx, dy, gradMat);//得到梯度矩阵
 
 	Mat Mask_gradMat(gradMat.size(), gradMat.type(), Scalar_<float>(0));
-	gradMat.copyTo(Mask_gradMat, (confidenceMat != 0.0f));
+
+	gradMat.copyTo(Mask_gradMat, (confidenceMat != 0.0f));//confidenceMat被修改了
+
 	erode(Mask_gradMat, Mask_gradMat, Mat());
 
 	assert(Mask_gradMat.type() == CV_32FC1);
@@ -242,12 +244,7 @@ Mat computeSSD(const Mat& tmplate, const Mat& source, const Mat& tmplateMask)
 
 	Mat result(source.rows - tmplate.rows + 1, source.cols - tmplate.cols + 1, CV_32F, 0.0f);
 
-	matchTemplate(source,
-		tmplate,
-		result,
-		CV_TM_SQDIFF,
-		tmplateMask
-	);
+	matchTemplate(source,tmplate,result,CV_TM_SQDIFF,tmplateMask);
 	normalize(result, result, 0, 1, NORM_MINMAX);
 	copyMakeBorder(result, result, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 1.1f);
 

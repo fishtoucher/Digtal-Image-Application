@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\treeImage.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="..\treeMask.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="20HK.jpg">
       <Filter>资源文件</Filter>
     </Image>
@@ -30,16 +24,22 @@
     <Image Include="inpainting-master\example.gif">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="inpainting-master\inpainting\input-alpha.png">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="inpainting-master\inpainting\input-color.png">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="55s.jpg">
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="55smask.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="input-alpha.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="input-color.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="treeImage.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="treeMask.jpg">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

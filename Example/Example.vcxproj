@@ -144,15 +144,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Image Include="..\treeImage.jpg" />
-    <Image Include="..\treeMask.jpg" />
     <Image Include="20HK.jpg" />
     <Image Include="20HKmask.jpg" />
     <Image Include="55s.jpg" />
     <Image Include="55smask.jpg" />
     <Image Include="inpainting-master\example.gif" />
-    <Image Include="inpainting-master\inpainting\input-alpha.png" />
-    <Image Include="inpainting-master\inpainting\input-color.png" />
+    <Image Include="input-alpha.png" />
+    <Image Include="input-color.png" />
+    <Image Include="treeImage.jpg" />
+    <Image Include="treeMask.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inpainting-master\inpainting\inpainting.cpp" />
