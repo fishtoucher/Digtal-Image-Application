@@ -19,7 +19,7 @@
  */
 
 #ifndef DEBUG
-    #define DEBUG 1
+    #define DEBUG 0
 #endif
 
 using namespace std;
@@ -48,8 +48,8 @@ int main (int argc, char** argv) {
     //破损区1，其余为0
     //cout << confidenceMat << endl;
 
-	copyMakeBorder(maskMat, maskMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0);
-    copyMakeBorder(confidenceMat, confidenceMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0);
+	copyMakeBorder(maskMat, maskMat, RADIUS+1, RADIUS + 1, RADIUS + 1, RADIUS + 1, BORDER_CONSTANT, 0);
+    copyMakeBorder(confidenceMat, confidenceMat, RADIUS + 1, RADIUS + 1, RADIUS + 1, RADIUS + 1, BORDER_CONSTANT, 0);
 
     contours_t contours;            // 轮廓点
     hierarchy_t hierarchy;          // 辅助定义轮廓
@@ -73,18 +73,18 @@ int main (int argc, char** argv) {
     
     //==========================================================================
     // eroded mask is used to ensure that psiHatQ is not overlapping with target
-    erode(maskMat, erodedMask, Mat(), Point(-1, -1), RADIUS);
+    dilate(maskMat, erodedMask, Mat(), Point(-1, -1), RADIUS);
 
     Mat drawMat;
     
     
     // main loop
     const size_t area = maskMat.total();
-    cout << countNonZero(maskMat) << endl;
     
     //while (countNonZero(maskMat) != area)   // end when target is filled
     while (countNonZero(maskMat)!=0)
     {
+        cout << countNonZero(maskMat) << endl;
         //初始化P矩阵
         priorityMat.setTo(-0.1f);
         
@@ -96,7 +96,6 @@ int main (int argc, char** argv) {
         }
         
         //计算P矩阵
-        cout << confidenceMat << endl;
         computePriority(contours, grayMat, confidenceMat, priorityMat);
 
         //取最大优先权的点P
@@ -119,10 +118,9 @@ int main (int argc, char** argv) {
         result.setTo(1.1f, erodedMask);
         // get minimum point of SSD between psiHatPColor and srcMat
         minMaxLoc(result, NULL, NULL, &psiHatQ);
-        
-        cout << result.at<float>(psiHatQ.x, psiHatQ.y) << endl;
-        cout << psiHatP << " " << psiHatQ << endl;
+
         assert(psiHatQ != psiHatP);
+        //cout << psiHatP << " "<<psiHatQ << endl;
         
         if (DEBUG) {
         rectangle(drawMat, psiHatP - Point(RADIUS, RADIUS), psiHatP + Point(RADIUS+1, RADIUS+1), Scalar(255, 0, 0));

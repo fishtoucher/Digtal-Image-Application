@@ -32,7 +32,7 @@ void loadInpaintingImages(
 	srcMat /= 255.0f;
 
 	//拓宽原图，延展补丁半径个长度
-	copyMakeBorder(srcMat,srcMat,RADIUS,RADIUS,RADIUS,RADIUS,BORDER_CONSTANT,Scalar_<float>(0, 0, 0));
+	copyMakeBorder(srcMat,srcMat,RADIUS + 1,RADIUS + 1,RADIUS + 1,RADIUS + 1,BORDER_CONSTANT,Scalar_<float>(0, 0, 0));
 
 	cvtColor(srcMat, grayMat, CV_BGR2GRAY);
 }
