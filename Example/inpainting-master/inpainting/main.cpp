@@ -1,22 +1,9 @@
-//
-//  main.cpp
-//  An example main function showcasing how to use the inpainting function.
-//
-//  Created by Sooham Rafiz on 2016-05-16.
-
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/core/core.hpp"
-
 #include <iostream>
 #include <string>
-
 #include "utils.hpp"
-
-/*
- * Note: This program uses C assert() statements, define NDEBUG marco to
- * disable assertions.
- */
 
 #ifndef DEBUG
     #define DEBUG 0
@@ -25,9 +12,8 @@
 using namespace std;
 
 int main (int argc, char** argv) {
-    // --------------- read filename strings ------------------
     std::string srcFilename, maskFilename;
-    
+
     if (argc == 3) {
         srcFilename = argv[1];
         maskFilename = argv[2];
@@ -84,7 +70,7 @@ int main (int argc, char** argv) {
     //while (countNonZero(maskMat) != area)   // end when target is filled
     while (countNonZero(maskMat)!=0)
     {
-        cout << countNonZero(maskMat) << endl;
+        //cout << countNonZero(maskMat) << endl;
         //³õÊ¼»¯P¾ØÕó
         priorityMat.setTo(-0.1f);
         
