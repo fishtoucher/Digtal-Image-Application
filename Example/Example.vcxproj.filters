@@ -33,6 +33,9 @@
     <Image Include="treeMask.jpg">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="doctor.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inpainting-master\inpainting\main.cpp">
@@ -44,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inpainting-master\inpainting\utils.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="param.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

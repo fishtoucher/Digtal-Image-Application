@@ -17,7 +17,7 @@
 #endif
 
 #ifndef PRIORITYTYEP
-#define PRIORITYTYPE PRIORITYTYPE_MUL
+#define PRIORITYTYPE PRIORITYTYPE_ADD
 #endif
 
 #ifndef DEBUG
@@ -44,7 +44,7 @@ void getDerivatives(const cv::Mat& grayMat, cv::Mat& dx, cv::Mat& dy);
 
 cv::Point2f getNormal(const contour_t& contour, const cv::Point& point);
 
-void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat);
+void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat, double a);
 
 void transferPatch(const cv::Point& psiHatQ, const cv::Point& psiHatP, cv::Mat& mat, const cv::Mat& maskMat);
 

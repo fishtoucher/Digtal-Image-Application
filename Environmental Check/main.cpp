@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const string saveFile = "E:\Visual_Studio_code\Result\Test_a&b";
+const string saveFile = "E://Visual_Studio_code//Result//Test_a&b//";
 string windowName = "Origin image";
 cv::Point mousePrePoint;
 cv::Mat colorMat;
@@ -29,8 +29,8 @@ void onMouse(int event, int x, int y, int flags, void* userdata)
 	}
 };
 
-int main(int argc, char** argv) {
-
+int Test(int argc, char** argv, double a, double b)
+{
 	std::string colorFilename, maskFilename = "";
 	cv::Mat grayMat, maskMat;
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 		}
 
 		//计算优先权
-		computePriority(contours, grayMat, confidenceMat, priorityMat);
+		computePriority(contours, grayMat, confidenceMat, priorityMat, a);
 		cv::minMaxLoc(priorityMat, NULL, NULL, NULL, &psiHatP); //获取优先级的轮廓点位置
 		psiHatPColor = getPatch(colorMat, psiHatP);             //从待修复边缘提取待匹配的块
 		psiHatPConfidence = getPatch(confidenceMat, psiHatP);   //提取C矩阵的ROI
@@ -132,7 +132,24 @@ int main(int argc, char** argv) {
 		maskMat = (confidenceMat != 0.0f);
 	}
 
-	showMat("final result", colorMat, 0);
-	saveImage(colorMat, saveFile+"\test.jpg");
+	//showMat("final result", colorMat, 0);
+	string num = "0"; 
+	if (a == 1.0) {
+		num += "0";
+	}
+	else {
+		num[0] += (int)((a + 0.05) * 10);
+	}
+	num += (string)".jpg";
+	cout << num << endl;
+	saveImage(colorMat, saveFile + "test"+num);
+	return 1;
+}
+
+int main(int argc, char** argv) {
+
+	for (double a = 0.0; a <= 0.6; a += 0.1) {
+		Test(argc, argv, a, 1.0 - a);
+	}
 	return 0;
 }

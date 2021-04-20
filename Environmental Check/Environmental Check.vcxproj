@@ -167,6 +167,7 @@
   <ItemGroup>
     <Image Include="BlackGaryImage.jpg" />
     <Image Include="BlackGaryImageMask.jpg" />
+    <Image Include="doctor.jpg" />
     <Image Include="treeImage.jpg" />
     <Image Include="treeMask.jpg" />
   </ItemGroup>

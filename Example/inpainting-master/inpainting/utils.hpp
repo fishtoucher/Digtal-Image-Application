@@ -1,53 +1,55 @@
-#ifndef utils_hpp
-#define utils_hpp
+#ifndef UTILS_HPP
+#define UTILS_HPP
 
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
-
 #include <assert.h>
 #include <stdio.h>
-
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <cmath>
+#include "param.h"
 
-using namespace cv;
+#ifndef WORKTYEP
+#define WORKTYEP WORKTYPE_CMD
+#endif
 
-typedef std::vector<std::vector<Point>> contours_t;
-typedef std::vector<Vec4i> hierarchy_t;
-typedef std::vector<Point> contour_t;
+#ifndef PRIORITYTYEP
+#define PRIORITYTYPE PRIORITYTYPE_ADD
+#endif
 
+#ifndef DEBUG
+#define DEBUG 0
+#endif
 
-#define RADIUS 4
-#define BORDER_RADIUS 4
+typedef std::vector<std::vector<cv::Point>> contours_t;
+typedef std::vector<cv::Vec4i> hierarchy_t;
+typedef std::vector<cv::Point> contour_t;
 
 int mod(int a, int b);
 
-void loadInpaintingImages(
-                          const std::string& srcFilename,
-                          const std::string& maskFilename,
-                          Mat& srcMat,
-                          Mat& maskMat,
-                          Mat& grayMat);
+void loadInpaintingImages(const std::string& colorFilename, const std::string& maskFilename, cv::Mat& colorMat, cv::Mat& maskMat, cv::Mat& grayMat);
 
-void showMat(const String& winname, const Mat& mat, int time=5);
+void showMat(const cv::String& winname, const cv::Mat& mat, int time = 5);
 
-void getContours(const Mat& mask, contours_t& contours, hierarchy_t& hierarchy);
+void getContours(const cv::Mat& mask, contours_t& contours, hierarchy_t& hierarchy);
 
-double getCterm(const Mat& Patch_C);
+double computeConfidence(const cv::Mat& confidencePatch);
 
-Mat getPatch(const Mat& image, const Point& p);
+cv::Mat getPatch(const cv::Mat& image, const cv::Point& p);
 
-void getDerivatives(const Mat& grayMat, Mat& dx, Mat& dy);
+void getDerivatives(const cv::Mat& grayMat, cv::Mat& dx, cv::Mat& dy);
 
-Point2f getNormal(const contour_t& contour, const Point& point);
+cv::Point2f getNormal(const contour_t& contour, const cv::Point& point);
 
-void computePriority(const contours_t& contours, const Mat& grayMat, const Mat& confidenceMat, Mat& priorityMat);
+void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat, double a);
 
-void transferPatch(const Point& psiHatQ, const Point& psiHatP, Mat& mat, const Mat& maskMat);
+void transferPatch(const cv::Point& psiHatQ, const cv::Point& psiHatP, cv::Mat& mat, const cv::Mat& maskMat);
 
-Mat computeSSD(const Mat& tmplate, const Mat& source, const Mat& tmplateMask);
+cv::Mat computeSSD(const cv::Mat& tmplate, const cv::Mat& source, const cv::Mat& tmplateMask);
+
+void saveImage(const cv::Mat& imgMat, const std::string fileUrl);
 
 #endif

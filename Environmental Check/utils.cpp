@@ -27,7 +27,7 @@ void showMat(const cv::String &winname, const cv::Mat &mat, int time)
 void saveImage(const cv::Mat &imgMat, const std::string fileUrl)
 {
 	assert(!imgMat.empty() && !fileUrl.empty());
-	cv::imwrite(fileUrl, imgMat);
+	cv::imwrite(fileUrl, imgMat*255);
 }
 
 //边界定义
@@ -118,7 +118,7 @@ double computeConfidence(const cv::Mat& confidencePatch)
 }
 
 //计算优先权
-void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat)
+void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat,double a)
 {
 	assert(grayMat.type() == CV_32FC1 && priorityMat.type() == CV_32FC1 && confidenceMat.type() == CV_32FC1);
 
@@ -166,7 +166,7 @@ void computePriority(const contours_t& contours, const cv::Mat& grayMat, const c
 			);
 
 			if (PRIORITYTYPE == PRIORITYTYPE_ADD) {
-				priorityMat.ptr<float>(point.y)[point.x] = std::abs((float)confidence*0.2 + gradient.dot(normal)*0.8);
+				priorityMat.ptr<float>(point.y)[point.x] = std::abs((float)confidence*a + gradient.dot(normal)*(1.0 - a));
 			}
 			else if(PRIORITYTYPE == PRIORITYTYPE_MUL){
 				priorityMat.ptr<float>(point.y)[point.x] = std::abs((float)confidence * gradient.dot(normal));
