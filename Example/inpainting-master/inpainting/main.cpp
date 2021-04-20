@@ -43,34 +43,28 @@ int main (int argc, char** argv) {
     
     assert(srcMat.size() == grayMat.size() &&srcMat.size() == confidenceMat.size() &&srcMat.size() == maskMat.size());
     
-    Point psiHatP;          // psiHatP - point of highest confidence
+    Point psiHatP;          
     
-    Mat psiHatPColor;       // color patch around psiHatP
+    Mat psiHatPColor;       
 
-    Mat psiHatPConfidence;  // confidence patch around psiHatP
-    double confidence;          // confidence of psiHatPConfidence
+    Mat psiHatPConfidence;  
+    double confidence;      
     
-    Point psiHatQ;          // psiHatQ - point of closest patch
+    Point psiHatQ;          
     
-    Mat result;             // holds result from template matching
-    Mat erodedMask;         // eroded mask
+    Mat result;             
+    Mat erodedMask;         
     
-    Mat templateMask;       // mask for template match (3 channel)
+    Mat templateMask;       
     
-    //==========================================================================
-    // eroded mask is used to ensure that psiHatQ is not overlapping with target
     dilate(maskMat, erodedMask, Mat(), Point(-1, -1), RADIUS);
 
     Mat drawMat;
-    
-    
-    // main loop
+
     const size_t area = maskMat.total();
     
-    //while (countNonZero(maskMat) != area)   // end when target is filled
     while (countNonZero(maskMat)!=0)
     {
-        //cout << countNonZero(maskMat) << endl;
         //³õÊ¼»¯P¾ØÕó
         priorityMat.setTo(-0.1f);
         
@@ -94,15 +88,11 @@ int main (int argc, char** argv) {
         confInv.convertTo(confInv, CV_32F);
         confInv /= 255.0f;
 
-        // get the patch in source with least distance to psiHatPColor wrt source of psiHatP
         Mat mergeArrays[3] = {confInv, confInv, confInv};
         merge(mergeArrays, 3, templateMask);
         result = computeSSD(psiHatPColor, srcMat, templateMask);
 
-        // set all target regions to 1.1, which is over the maximum value possilbe
-        // from SSD
         result.setTo(1.1f, erodedMask);
-        // get minimum point of SSD between psiHatPColor and srcMat
         minMaxLoc(result, NULL, NULL, &psiHatQ);
 
         assert(psiHatQ != psiHatP);
@@ -113,21 +103,14 @@ int main (int argc, char** argv) {
         rectangle(drawMat, psiHatQ - Point(RADIUS, RADIUS), psiHatQ + Point(RADIUS+1, RADIUS+1), Scalar(0, 0, 255));
         showMat("red - psiHatQ", drawMat);
         }
-        // updates
-        // copy from psiHatQ to psiHatP for each colorspace
         transferPatch(psiHatQ, psiHatP, grayMat, (maskMat == 0));
         transferPatch(psiHatQ, psiHatP, srcMat, (maskMat == 0));
 
-        // fill in confidenceMat with confidences C(pixel) = C(psiHatP)
         confidence = getCterm(psiHatPConfidence);
 
         assert(0 <= confidence && confidence <= 1.0f);
-        //=========================================================================
-        // update confidence
-        //psiHatPConfidence.setTo(confidence, (psiHatPConfidence == 0.0f));
         psiHatPConfidence.setTo(0);
 
-        // update maskMat
         maskMat = (confidenceMat != 0.0f);
 	}
     

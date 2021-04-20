@@ -16,11 +16,11 @@
     <Filter Include="源文件\TestCode">
       <UniqueIdentifier>{92cb31df-9283-4a6b-8c33-a21e43e0416f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\OriginCode">
-      <UniqueIdentifier>{30e9ce01-17a4-4b59-a397-d30f1b7c5378}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\GUI">
+    <Filter Include="源文件\Main">
       <UniqueIdentifier>{fe486273-4763-4953-bc6b-faeeb56add81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Test">
+      <UniqueIdentifier>{3c65b842-caab-442e-bbbc-b907c76719e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,53 +33,38 @@
     <ClCompile Include="Test_Compiler.cpp">
       <Filter>源文件\TestCode</Filter>
     </ClCompile>
-    <ClCompile Include="inpainting.cpp">
-      <Filter>源文件\OriginCode</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>源文件\OriginCode</Filter>
-    </ClCompile>
-    <ClCompile Include="test.cpp">
-      <Filter>源文件\OriginCode</Filter>
+      <Filter>源文件\Main</Filter>
     </ClCompile>
     <ClCompile Include="utils.cpp">
-      <Filter>源文件\OriginCode</Filter>
+      <Filter>源文件\Main</Filter>
     </ClCompile>
-    <ClCompile Include="updatewithGUI.cpp">
-      <Filter>源文件\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUIutils.cpp">
-      <Filter>源文件\GUI</Filter>
+    <ClCompile Include="test.cpp">
+      <Filter>源文件\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="function.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="inpainting.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="test.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="utils.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GUI.hpp">
+    <ClInclude Include="param.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="input-alpha.png">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="input-color.png">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="treeImage.jpg">
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="treeMask.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="BlackGaryImage.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="BlackGaryImageMask.jpg">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

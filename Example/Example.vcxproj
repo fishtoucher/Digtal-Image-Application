@@ -148,21 +148,14 @@
     <Image Include="20HKmask.jpg" />
     <Image Include="55s.jpg" />
     <Image Include="55smask.jpg" />
-    <Image Include="inpainting-master\example.gif" />
-    <Image Include="input-alpha.png" />
-    <Image Include="input-color.png" />
     <Image Include="treeImage.jpg" />
     <Image Include="treeMask.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="inpainting-master\inpainting\inpainting.cpp" />
     <ClCompile Include="inpainting-master\inpainting\main.cpp" />
-    <ClCompile Include="inpainting-master\inpainting\test.cpp" />
     <ClCompile Include="inpainting-master\inpainting\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inpainting-master\inpainting\inpainting.hpp" />
-    <ClInclude Include="inpainting-master\inpainting\test.hpp" />
     <ClInclude Include="inpainting-master\inpainting\utils.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

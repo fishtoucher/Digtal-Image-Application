@@ -20,9 +20,7 @@ typedef std::vector<Vec4i> hierarchy_t;
 typedef std::vector<Point> contour_t;
 
 
-// Patch raduius
 #define RADIUS 4
-// The maximum number of pixels around a specified point on the target outline
 #define BORDER_RADIUS 4
 
 int mod(int a, int b);

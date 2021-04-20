@@ -1,38 +1,38 @@
-#ifndef utils_hpp
-#define utils_hpp
+#ifndef UTILS_HPP
+#define UTILS_HPP
 
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
-
 #include <assert.h>
 #include <stdio.h>
-
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <cmath>
+#include "param.h"
+
+#ifndef WORKTYEP
+#define WORKTYEP WORKTYPE_CMD
+#endif
+
+#ifndef PRIORITYTYEP
+#define PRIORITYTYPE PRIORITYTYPE_MUL
+#endif
+
+#ifndef DEBUG
+#define DEBUG 0
+#endif
 
 typedef std::vector<std::vector<cv::Point>> contours_t;
 typedef std::vector<cv::Vec4i> hierarchy_t;
 typedef std::vector<cv::Point> contour_t;
 
-
-// Patch raduius
-#define RADIUS 4
-// The maximum number of pixels around a specified point on the target outline
-#define BORDER_RADIUS 4
-
 int mod(int a, int b);
 
-void loadInpaintingImages(
-                          const std::string& colorFilename,
-                          const std::string& maskFilename,
-                          cv::Mat& colorMat,
-                          cv::Mat& maskMat,
-                          cv::Mat& grayMat);
+void loadInpaintingImages(const std::string& colorFilename, const std::string& maskFilename, cv::Mat& colorMat, cv::Mat& maskMat, cv::Mat& grayMat);
 
-void showMat(const cv::String& winname, const cv::Mat& mat, int time=5);
+void showMat(const cv::String& winname, const cv::Mat& mat, int time = 5);
 
 void getContours(const cv::Mat& mask, contours_t& contours, hierarchy_t& hierarchy);
 
@@ -49,5 +49,7 @@ void computePriority(const contours_t& contours, const cv::Mat& grayMat, const c
 void transferPatch(const cv::Point& psiHatQ, const cv::Point& psiHatP, cv::Mat& mat, const cv::Mat& maskMat);
 
 cv::Mat computeSSD(const cv::Mat& tmplate, const cv::Mat& source, const cv::Mat& tmplateMask);
+
+void saveImage(const cv::Mat& imgMat, const std::string fileUrl);
 
 #endif
