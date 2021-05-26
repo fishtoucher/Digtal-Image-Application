@@ -92,7 +92,14 @@ int Test(int argc, char** argv, double a, double b)
 
 	const size_t area = maskMat.total();
 
+	clock_t caluPriorityTime(0), caluDistanceTime(0), caluTransferTime(0), updateTime(0);
+	int looptimes(0);
+
 	while (cv::countNonZero(maskMat) != area) {
+		looptimes += 1;
+		clock_t startTime, endtime;
+
+		startTime = clock();
 		priorityMat.setTo(-0.1f);
 		getContours((maskMat == 0), contours, hierarchy);
 
@@ -104,6 +111,10 @@ int Test(int argc, char** argv, double a, double b)
 		computePriority(contours, grayMat, confidenceMat, priorityMat, a);
 		cv::minMaxLoc(priorityMat, NULL, NULL, NULL, &psiHatP); //获取优先级的轮廓点位置
 		psiHatPColor = getPatch(colorMat, psiHatP);             //从待修复边缘提取待匹配的块
+		endtime = clock();
+		caluPriorityTime += endtime - startTime;
+
+		startTime = clock();
 		psiHatPConfidence = getPatch(confidenceMat, psiHatP);   //提取C矩阵的ROI
 		cv::Mat confInv = (psiHatPConfidence != 0.0f);
 		confInv.convertTo(confInv, CV_32F);
@@ -122,14 +133,23 @@ int Test(int argc, char** argv, double a, double b)
 		//}
 
 		//完成置换
+		endtime = clock();
+		caluDistanceTime += endtime - startTime;
+
+		startTime = clock();
 		transferPatch(psiHatQ, psiHatP, grayMat, (maskMat == 0));
 		transferPatch(psiHatQ, psiHatP, colorMat, (maskMat == 0));
+		endtime = clock();
+		caluTransferTime += endtime - startTime;
 
+		startTime = clock();
 		//更新C矩阵与掩膜
 		double confidence = computeConfidence(psiHatPConfidence);
 		assert(0 <= confidence && confidence <= 1.0f);
 		psiHatPConfidence.setTo(confidence, (psiHatPConfidence == 0.0f));
 		maskMat = (confidenceMat != 0.0f);
+		endtime = clock();
+		updateTime += endtime - startTime;
 	}
 
 	//showMat("final result", colorMat, 0);

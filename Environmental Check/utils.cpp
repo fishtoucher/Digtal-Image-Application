@@ -69,10 +69,10 @@ cv::Point2f getNormal(const contour_t& contour, const cv::Point& point)
 		return cv::Point2f(adj.y, -adj.x) / cv::norm(adj);
 	}
 
-	cv::Mat X(cv::Size(2, 2 * BORDER_RADIUS + 1), CV_32F);
+	cv::Mat X(cv::Size(4, 2 * BORDER_RADIUS + 1), CV_32F);
 	cv::Mat Y(cv::Size(1, 2 * BORDER_RADIUS + 1), CV_32F);
 
-	assert(X.rows == Y.rows && X.cols == 2 && Y.cols == 1 && X.type() == Y.type() && Y.type() == CV_32F);
+	//assert(X.rows == Y.rows && X.cols == 2 && Y.cols == 1 && X.type() == Y.type() && Y.type() == CV_32F);
 
 	int i = mod((pointIndex - BORDER_RADIUS), sz);
 
@@ -83,8 +83,10 @@ cv::Point2f getNormal(const contour_t& contour, const cv::Point& point)
 	int countXequal = 0;
 	while (count < 2 * BORDER_RADIUS + 1) {
 		Xrow = X.ptr<float>(count);
-		Xrow[0] = contour[i].x;
-		Xrow[1] = 1.0f;
+		Xrow[0] = 1.0f;
+		Xrow[1] = contour[i].x;
+		Xrow[2] = contour[i].x* contour[i].x;
+		Xrow[3] = contour[i].x* contour[i].x*contour[i].x;
 
 		Yrow = Y.ptr<float>(count);
 		Yrow[0] = contour[i].y;
@@ -106,8 +108,16 @@ cv::Point2f getNormal(const contour_t& contour, const cv::Point& point)
 
 	assert(sol.type() == CV_32F);
 
-	float slope = sol.ptr<float>(0)[0];
-	cv::Point2f normal(-slope, 1);
+	double a0, a1, a2, a3, x;
+	a0 = sol.ptr<float>(0)[0];
+	a1 = sol.ptr<float>(0)[1];
+	a2 = sol.ptr<float>(0)[2];
+	a3 = sol.ptr<float>(0)[3];
+	x = point.x;
+	
+	//float slope = sol.ptr<float>(0)[0];
+	//cv::Point2f normal(-slope, 1);
+	cv::Point2f normal(a1+2.0*a2*x+3.0*a3*x*x, -1);
 
 	return normal / cv::norm(normal);
 }
@@ -118,7 +128,7 @@ double computeConfidence(const cv::Mat& confidencePatch)
 }
 
 //计算优先权
-void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat,double a)
+void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat)
 {
 	assert(grayMat.type() == CV_32FC1 && priorityMat.type() == CV_32FC1 && confidenceMat.type() == CV_32FC1);
 
@@ -166,7 +176,7 @@ void computePriority(const contours_t& contours, const cv::Mat& grayMat, const c
 			);
 
 			if (PRIORITYTYPE == PRIORITYTYPE_ADD) {
-				priorityMat.ptr<float>(point.y)[point.x] = std::abs((float)confidence*a + gradient.dot(normal)*(1.0 - a));
+				priorityMat.ptr<float>(point.y)[point.x] = std::abs((float)confidence*0.312 + gradient.dot(normal)*0.698);
 			}
 			else if(PRIORITYTYPE == PRIORITYTYPE_MUL){
 				priorityMat.ptr<float>(point.y)[point.x] = std::abs((float)confidence * gradient.dot(normal));

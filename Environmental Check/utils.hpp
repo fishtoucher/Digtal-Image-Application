@@ -13,15 +13,15 @@
 #include "param.h"
 
 #ifndef WORKTYEP
-#define WORKTYEP WORKTYPE_CMD
+#define WORKTYEP WORKTYPE_GUI
 #endif
 
 #ifndef PRIORITYTYEP
-#define PRIORITYTYPE PRIORITYTYPE_ADD
+#define PRIORITYTYPE PRIORITYTYPE_MUL
 #endif
 
 #ifndef DEBUG
-#define DEBUG 0
+#define DEBUG 1
 #endif
 
 typedef std::vector<std::vector<cv::Point>> contours_t;
@@ -32,7 +32,7 @@ int mod(int a, int b);
 
 void loadInpaintingImages(const std::string& colorFilename, const std::string& maskFilename, cv::Mat& colorMat, cv::Mat& maskMat, cv::Mat& grayMat);
 
-void showMat(const cv::String& winname, const cv::Mat& mat, int time = 5);
+void showMat(const cv::String& winname, const cv::Mat& mat, int time = 1);
 
 void getContours(const cv::Mat& mask, contours_t& contours, hierarchy_t& hierarchy);
 
@@ -44,7 +44,7 @@ void getDerivatives(const cv::Mat& grayMat, cv::Mat& dx, cv::Mat& dy);
 
 cv::Point2f getNormal(const contour_t& contour, const cv::Point& point);
 
-void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat, double a);
+void computePriority(const contours_t& contours, const cv::Mat& grayMat, const cv::Mat& confidenceMat, cv::Mat& priorityMat);
 
 void transferPatch(const cv::Point& psiHatQ, const cv::Point& psiHatP, cv::Mat& mat, const cv::Mat& maskMat);
 

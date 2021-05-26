@@ -36,6 +36,9 @@
     <Image Include="doctor.jpg">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="jump.png">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inpainting-master\inpainting\main.cpp">

@@ -22,15 +22,17 @@ void onMouse(int event, int x, int y, int flags, void* userdata)
 	else if (event == cv::EVENT_MOUSEMOVE && (flags & cv::EVENT_FLAG_LBUTTON)) {
 		cv::Mat& mask = *(cv::Mat*)userdata;
 		cv::Point pt(x, y);
-		cv::line(mask, mousePrePoint, pt, cv::Scalar(0, 0, 0), 5, cv::LINE_4, 0);
+		cv::line(mask, mousePrePoint, pt, cv::Scalar(0, 0, 0), 15, cv::LINE_4, 0);
 		mousePrePoint = pt;
 		colorMat.setTo(0, mask < 1);
 		cv::imshow(windowName, colorMat);
 	}
 };
 
-int Test(int argc, char** argv, double a, double b)
-{
+	
+
+int main(int argc, char** argv) {
+
 	std::string colorFilename, maskFilename = "";
 	cv::Mat grayMat, maskMat;
 
@@ -53,6 +55,9 @@ int Test(int argc, char** argv, double a, double b)
 		cv::split(tempMaskMat, maskImages);
 		maskImages[0].copyTo(maskMat);
 		assert(maskMat.type() == CV_8UC1);
+		
+		saveImage(maskMat, saveFile + "mask.jpg");
+		
 	}
 	else {
 		std::cerr << "ERROR:image empty!" << std::endl;
@@ -64,7 +69,7 @@ int Test(int argc, char** argv, double a, double b)
 	confidenceMat /= 255.0f;
 
 	//边界扩展，防止越界
-	cv::copyMakeBorder(colorMat, colorMat, RADIUS, RADIUS, RADIUS, RADIUS, cv::BORDER_CONSTANT, cv::Scalar_<float>(0, 0, 0));
+	cv::copyMakeBorder(colorMat, colorMat, RADIUS, RADIUS, RADIUS, RADIUS, cv::BORDER_CONSTANT, cv::Scalar_<float>(34, 123, 43));
 	cv::copyMakeBorder(maskMat, maskMat, RADIUS, RADIUS, RADIUS, RADIUS, cv::BORDER_CONSTANT, 255);
 	cv::copyMakeBorder(confidenceMat, confidenceMat, RADIUS, RADIUS, RADIUS, RADIUS, cv::BORDER_CONSTANT, 0.0001f);
 	cv::cvtColor(colorMat, grayMat, CV_BGR2GRAY);
@@ -101,7 +106,7 @@ int Test(int argc, char** argv, double a, double b)
 		}
 
 		//计算优先权
-		computePriority(contours, grayMat, confidenceMat, priorityMat, a);
+		computePriority(contours, grayMat, confidenceMat, priorityMat);
 		cv::minMaxLoc(priorityMat, NULL, NULL, NULL, &psiHatP); //获取优先级的轮廓点位置
 		psiHatPColor = getPatch(colorMat, psiHatP);             //从待修复边缘提取待匹配的块
 		psiHatPConfidence = getPatch(confidenceMat, psiHatP);   //提取C矩阵的ROI
@@ -115,11 +120,11 @@ int Test(int argc, char** argv, double a, double b)
 		cv::minMaxLoc(result, NULL, NULL, &psiHatQ);
 
 		assert(psiHatQ != psiHatP);
-		//if (DEBUG) {
-		//    cv::rectangle(drawMat, psiHatP - cv::Point(RADIUS, RADIUS), psiHatP + cv::Point(RADIUS + 1, RADIUS + 1), cv::Scalar(255, 0, 0));
-		//    cv::rectangle(drawMat, psiHatQ - cv::Point(RADIUS, RADIUS), psiHatQ + cv::Point(RADIUS + 1, RADIUS + 1), cv::Scalar(0, 0, 255));
-		//    showMat("red - psiHatQ", drawMat, 1000);
-		//}
+		if (DEBUG) {
+		    cv::rectangle(drawMat, psiHatP - cv::Point(RADIUS, RADIUS), psiHatP + cv::Point(RADIUS + 1, RADIUS + 1), cv::Scalar(255, 0, 0));
+		    cv::rectangle(drawMat, psiHatQ - cv::Point(RADIUS, RADIUS), psiHatQ + cv::Point(RADIUS + 1, RADIUS + 1), cv::Scalar(0, 0, 255));
+		    showMat("red - psiHatQ", drawMat, 1000);
+		}
 
 		//完成置换
 		transferPatch(psiHatQ, psiHatP, grayMat, (maskMat == 0));
@@ -131,25 +136,8 @@ int Test(int argc, char** argv, double a, double b)
 		psiHatPConfidence.setTo(confidence, (psiHatPConfidence == 0.0f));
 		maskMat = (confidenceMat != 0.0f);
 	}
+	showMat("final result", colorMat, 0);
 
-	//showMat("final result", colorMat, 0);
-	string num = "0"; 
-	if (a == 1.0) {
-		num += "0";
-	}
-	else {
-		num[0] += (int)((a + 0.05) * 10);
-	}
-	num += (string)".jpg";
-	cout << num << endl;
-	saveImage(colorMat, saveFile + "test"+num);
-	return 1;
-}
-
-int main(int argc, char** argv) {
-
-	for (double a = 0.0; a <= 0.6; a += 0.1) {
-		Test(argc, argv, a, 1.0 - a);
-	}
+	saveImage(colorMat, saveFile + "result.jpg");
 	return 0;
 }

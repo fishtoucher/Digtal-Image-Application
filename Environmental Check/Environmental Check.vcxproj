@@ -165,9 +165,13 @@
     <ClInclude Include="param.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="dog.jpg" />
+    <Image Include="jump.png" />
+    <Image Include="people.jpg" />
     <Image Include="BlackGaryImage.jpg" />
     <Image Include="BlackGaryImageMask.jpg" />
     <Image Include="doctor.jpg" />
+    <Image Include="test.jpg" />
     <Image Include="treeImage.jpg" />
     <Image Include="treeMask.jpg" />
   </ItemGroup>

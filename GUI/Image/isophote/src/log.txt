@@ -1,0 +1,9 @@
+Sobel 5*5 等照线加强
+
+image3
+原始 ssim 0.9890 psnr 31.5200
+改进 ssim 0.9892 psnr 32.1551
+
+image4
+原始 ssim 0.9262 psnr 29.9459
+改进 ssim 0.9316 psnr 31.6994

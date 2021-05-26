@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts</Extensions>
+    </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{25d4669e-e218-4d22-82a5-c6b007b49218}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{0e1ba5ef-5279-4c7e-9bd8-c3c07c9c531b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\POJ">
+      <UniqueIdentifier>{27b3223b-28d1-46c4-aad3-eba37a364a3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\POJ">
+      <UniqueIdentifier>{e202b0c9-349a-44bb-aaa6-23c1f50a53f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Image">
+      <UniqueIdentifier>{b7cde888-5119-4c89-864a-212359dc167a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\mask">
+      <UniqueIdentifier>{6785346d-5770-4761-84a2-d64ba5039bdf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="GUI.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="SrcImageWidget.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="MaskImageWidget.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>Source Files\POJ</Filter>
+    </ClCompile>
+    <ClCompile Include="CriminisiJob.cpp">
+      <Filter>Source Files\POJ</Filter>
+    </ClCompile>
+    <ClCompile Include="SrcImageWidget.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MaskImageWidget.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="GUI.h">
+      <Filter>Header Files\GUI</Filter>
+    </QtMoc>
+    <QtMoc Include="CriminisiJob.h">
+      <Filter>Header Files\POJ</Filter>
+    </QtMoc>
+    <QtMoc Include="Config.h">
+      <Filter>Header Files\POJ</Filter>
+    </QtMoc>
+    <QtMoc Include="SrcImageWidget.h">
+      <Filter>Header Files\GUI</Filter>
+    </QtMoc>
+    <QtMoc Include="MaskImageWidget.h">
+      <Filter>Header Files\GUI</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Image\BlackRound.png">
+      <Filter>Resource Files\Image</Filter>
+    </Image>
+    <Image Include="test.png">
+      <Filter>Resource Files\Image</Filter>
+    </Image>
+    <Image Include="Image\mask4.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+    <Image Include="Image\image4.jpg">
+      <Filter>Resource Files\Image</Filter>
+    </Image>
+    <Image Include="Image\image1.jpg">
+      <Filter>Resource Files\Image</Filter>
+    </Image>
+    <Image Include="Image\mask1.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+    <Image Include="Image\image3.jpg">
+      <Filter>Resource Files\Image</Filter>
+    </Image>
+    <Image Include="Image\image7.jpg">
+      <Filter>Resource Files\Image</Filter>
+    </Image>
+    <Image Include="Image\mask3.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+    <Image Include="Image\mask7.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+    <Image Include="Image\image5.jpg">
+      <Filter>Resource Files\Image</Filter>
+    </Image>
+    <Image Include="Image\mask5.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="rec510.cpp">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CVQT.h">
+      <Filter>Header Files\POJ</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

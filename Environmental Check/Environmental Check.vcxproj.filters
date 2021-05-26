@@ -73,5 +73,17 @@
     <Image Include="doctor.jpg">
       <Filter>TestAB\资源文件</Filter>
     </Image>
+    <Image Include="test.jpg">
+      <Filter>TestAB\资源文件</Filter>
+    </Image>
+    <Image Include="people.jpg">
+      <Filter>TestAB\资源文件</Filter>
+    </Image>
+    <Image Include="dog.jpg">
+      <Filter>TestAB\资源文件</Filter>
+    </Image>
+    <Image Include="jump.png">
+      <Filter>TestAB\资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>
