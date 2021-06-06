@@ -15,25 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\treeImage.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="..\treeMask.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="20HK.jpg">
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="20HKmask.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="inpainting-master\example.gif">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="inpainting-master\inpainting\input-alpha.png">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="inpainting-master\inpainting\input-color.png">
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="55s.jpg">
@@ -42,15 +27,21 @@
     <Image Include="55smask.jpg">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="treeImage.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="treeMask.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="doctor.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="jump.png">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="inpainting-master\inpainting\inpainting.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="inpainting-master\inpainting\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="inpainting-master\inpainting\test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="inpainting-master\inpainting\utils.cpp">
@@ -58,13 +49,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inpainting-master\inpainting\inpainting.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="inpainting-master\inpainting\test.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="inpainting-master\inpainting\utils.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="param.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

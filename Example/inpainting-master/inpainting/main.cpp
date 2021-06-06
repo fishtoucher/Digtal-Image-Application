@@ -1,138 +1,175 @@
-//
-//  main.cpp
-//  An example main function showcasing how to use the inpainting function.
-//
-//  Created by Sooham Rafiz on 2016-05-16.
-
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2\imgproc\types_c.h>
 #include "opencv2/core/core.hpp"
-
+#include "opencv2/opencv.hpp"
 #include <iostream>
 #include <string>
-
 #include "utils.hpp"
-
-/*
- * Note: This program uses C assert() statements, define NDEBUG marco to
- * disable assertions.
- */
-
-#ifndef DEBUG
-    #define DEBUG 1
-#endif
 
 using namespace std;
 
-int main (int argc, char** argv) {
-    // --------------- read filename strings ------------------
-    std::string srcFilename, maskFilename;
-    
-    if (argc == 3) {
-        srcFilename = argv[1];
-        maskFilename = argv[2];
-    } else {
-        std::cerr << "Usage: ./inpainting colorImageFile maskImageFile" << std::endl;
-        return -1;
-    }
+const string saveFile = "E://Visual_Studio_code//Result//Test_a&b//";
+string windowName = "Origin image";
+cv::Point mousePrePoint;
+cv::Mat colorMat;
 
-    Mat srcMat, maskMat, grayMat;
-    loadInpaintingImages(srcFilename,maskFilename,srcMat,maskMat,grayMat);
+void onMouse(int event, int x, int y, int flags, void* userdata)
+{
+	if (event == cv::EVENT_LBUTTONDOWN) {
+		mousePrePoint = cv::Point(x, y);
+	}
+	else if (event == cv::EVENT_MOUSEMOVE && (flags & cv::EVENT_FLAG_LBUTTON)) {
+		cv::Mat& mask = *(cv::Mat*)userdata;
+		cv::Point pt(x, y);
+		cv::line(mask, mousePrePoint, pt, cv::Scalar(0, 0, 0), 5, cv::LINE_4, 0);
+		mousePrePoint = pt;
+		colorMat.setTo(0, mask < 1);
+		cv::imshow(windowName, colorMat);
+	}
+};
 
-    Mat confidenceMat;
-    maskMat.convertTo(confidenceMat, CV_32F);
-    confidenceMat /= 255.0f;
-    
-	copyMakeBorder(maskMat, maskMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0);
-    copyMakeBorder(confidenceMat, confidenceMat, RADIUS, RADIUS, RADIUS, RADIUS, BORDER_CONSTANT, 0.0001f);
+int Test(int argc, char** argv, double a, double b)
+{
+	std::string colorFilename, maskFilename = "";
+	cv::Mat grayMat, maskMat;
 
-    contours_t contours;            // mask contours
-    hierarchy_t hierarchy;          // contours hierarchy
- 
-    Mat priorityMat(confidenceMat.size(),CV_32FC1);
-    
-    assert(srcMat.size() == grayMat.size() &&srcMat.size() == confidenceMat.size() &&srcMat.size() == maskMat.size());
-    
-    Point psiHatP;          // psiHatP - point of highest confidence
-    
-    Mat psiHatPColor;       // color patch around psiHatP
+	if (argc == 3 && WORKTYEP == WORKTYPE_CMD) {
+		colorFilename = argv[1];
+		maskFilename = argv[2];
+		loadInpaintingImages(colorFilename, maskFilename, colorMat, maskMat, grayMat);
+	}
+	else if (argc > 1 && WORKTYEP == WORKTYPE_GUI) {
+		colorFilename = argv[1];
+		loadInpaintingImages(colorFilename, maskFilename, colorMat, maskMat, grayMat);
+		//交互GUI部分
+		cv::Mat tempMaskMat(colorMat.size(), CV_8UC3, cv::Scalar(255, 255, 255));
+		cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
+		cv::imshow(windowName, colorMat);
+		cv::setMouseCallback(windowName, onMouse, (void*)&tempMaskMat);
+		for (;;) { if (cv::waitKey(50) == 'q') { break; } }
+		cv::setMouseCallback(windowName, NULL);
+		cv::Mat maskImages[3];
+		cv::split(tempMaskMat, maskImages);
+		maskImages[0].copyTo(maskMat);
+		assert(maskMat.type() == CV_8UC1);
+	}
+	else {
+		std::cerr << "ERROR:image empty!" << std::endl;
+		return -1;
+	}
 
-    Mat psiHatPConfidence;  // confidence patch around psiHatP
-    double confidence;          // confidence of psiHatPConfidence
-    
-    Point psiHatQ;          // psiHatQ - point of closest patch
-    
-    Mat result;             // holds result from template matching
-    Mat erodedMask;         // eroded mask
-    
-    Mat templateMask;       // mask for template match (3 channel)
-    
-    //==========================================================================
-    // eroded mask is used to ensure that psiHatQ is not overlapping with target
-    erode(maskMat, erodedMask, Mat(), Point(-1, -1), RADIUS);
-    
-    Mat drawMat;
-    
-    
-    // main loop
-    const size_t area = maskMat.total();
-    
-    while (countNonZero(maskMat) != area)   // end when target is filled
-    {
-        // set priority matrix to -.1, lower than 0 so that border area is never selected
-        priorityMat.setTo(-0.1f);
-        
-        // get the contours of mask
-        getContours((maskMat == 0), contours, hierarchy);
-        
-        if (DEBUG) {
-            drawMat = srcMat.clone();
-        }
-        
-        // compute the priority for all contour points
-        computePriority(contours, grayMat, confidenceMat, priorityMat);
+	cv::Mat confidenceMat;
+	maskMat.convertTo(confidenceMat, CV_32F);
+	confidenceMat /= 255.0f;
 
-        // get the patch with the greatest priority
-        minMaxLoc(priorityMat, NULL, NULL, NULL, &psiHatP);
-        psiHatPColor = getPatch(srcMat, psiHatP);
-        psiHatPConfidence = getPatch(confidenceMat, psiHatP);
-        
-        Mat confInv = (psiHatPConfidence != 0.0f);
-        confInv.convertTo(confInv, CV_32F);
-        confInv /= 255.0f;
-        // get the patch in source with least distance to psiHatPColor wrt source of psiHatP
-        Mat mergeArrays[3] = {confInv, confInv, confInv};
-        merge(mergeArrays, 3, templateMask);
-        result = computeSSD(psiHatPColor, srcMat, templateMask);
-        
-        // set all target regions to 1.1, which is over the maximum value possilbe
-        // from SSD
-        result.setTo(1.1f, erodedMask);
-        // get minimum point of SSD between psiHatPColor and srcMat
-        minMaxLoc(result, NULL, NULL, &psiHatQ);
-        
-        //assert(psiHatQ != psiHatP);
-        
-        if (DEBUG) {
-        rectangle(drawMat, psiHatP - Point(RADIUS, RADIUS), psiHatP + Point(RADIUS+1, RADIUS+1), Scalar(255, 0, 0));
-        rectangle(drawMat, psiHatQ - Point(RADIUS, RADIUS), psiHatQ + Point(RADIUS+1, RADIUS+1), Scalar(0, 0, 255));
-        showMat("red - psiHatQ", drawMat);
-        }
-        
-        // updates
-        // copy from psiHatQ to psiHatP for each colorspace
-        transferPatch(psiHatQ, psiHatP, grayMat, (maskMat == 0));
-        transferPatch(psiHatQ, psiHatP, srcMat, (maskMat == 0));
-        
-        // fill in confidenceMat with confidences C(pixel) = C(psiHatP)
-        confidence = getCterm(psiHatPConfidence);
-        assert(0 <= confidence && confidence <= 1.0f);
-        // update confidence
-        psiHatPConfidence.setTo(confidence, (psiHatPConfidence == 0.0f));
-        // update maskMat
-        maskMat = (confidenceMat != 0.0f);
-    }
-    
-    showMat("final result", srcMat, 0);
-    return 0;
+	//边界扩展，防止越界
+	cv::copyMakeBorder(colorMat, colorMat, RADIUS, RADIUS, RADIUS, RADIUS, cv::BORDER_CONSTANT, cv::Scalar_<float>(0, 0, 0));
+	cv::copyMakeBorder(maskMat, maskMat, RADIUS, RADIUS, RADIUS, RADIUS, cv::BORDER_CONSTANT, 255);
+	cv::copyMakeBorder(confidenceMat, confidenceMat, RADIUS, RADIUS, RADIUS, RADIUS, cv::BORDER_CONSTANT, 0.0001f);
+	cv::cvtColor(colorMat, grayMat, CV_BGR2GRAY);
+
+	contours_t contours;            // 轮廓点
+	hierarchy_t hierarchy;          // 辅助定义轮廓
+
+	cv::Mat priorityMat(confidenceMat.size(), CV_32FC1);  //定义优先权矩阵
+
+	assert(colorMat.size() == grayMat.size() && colorMat.size() == confidenceMat.size() && colorMat.size() == maskMat.size());
+
+	cv::Point psiHatP;          //记录点P位置
+	cv::Point psiHatQ;          //记录点Q位置
+
+	cv::Mat psiHatPColor;
+	cv::Mat psiHatPConfidence;
+	cv::Mat result;
+	cv::Mat erodedMask;
+	cv::Mat templateMask;
+
+	//防止取值区域与边界样本块有交叉
+	cv::erode(maskMat, erodedMask, cv::Mat(), cv::Point(-1, -1), RADIUS);
+
+	cv::Mat drawMat;
+
+	const size_t area = maskMat.total();
+
+	clock_t caluPriorityTime(0), caluDistanceTime(0), caluTransferTime(0), updateTime(0);
+	int looptimes(0);
+
+	while (cv::countNonZero(maskMat) != area) {
+		looptimes += 1;
+		clock_t startTime, endtime;
+
+		startTime = clock();
+		priorityMat.setTo(-0.1f);
+		getContours((maskMat == 0), contours, hierarchy);
+
+		if (DEBUG) {
+			drawMat = colorMat.clone();
+		}
+
+		//计算优先权
+		computePriority(contours, grayMat, confidenceMat, priorityMat, a);
+		cv::minMaxLoc(priorityMat, NULL, NULL, NULL, &psiHatP); //获取优先级的轮廓点位置
+		psiHatPColor = getPatch(colorMat, psiHatP);             //从待修复边缘提取待匹配的块
+		endtime = clock();
+		caluPriorityTime += endtime - startTime;
+
+		startTime = clock();
+		psiHatPConfidence = getPatch(confidenceMat, psiHatP);   //提取C矩阵的ROI
+		cv::Mat confInv = (psiHatPConfidence != 0.0f);
+		confInv.convertTo(confInv, CV_32F);
+		confInv /= 255.0f;
+		cv::Mat mergeArrays[3] = { confInv, confInv, confInv };
+		cv::merge(mergeArrays, 3, templateMask);
+		result = computeSSD(psiHatPColor, colorMat, templateMask);
+		result.setTo(1.1f, erodedMask == 0);
+		cv::minMaxLoc(result, NULL, NULL, &psiHatQ);
+
+		assert(psiHatQ != psiHatP);
+		//if (DEBUG) {
+		//    cv::rectangle(drawMat, psiHatP - cv::Point(RADIUS, RADIUS), psiHatP + cv::Point(RADIUS + 1, RADIUS + 1), cv::Scalar(255, 0, 0));
+		//    cv::rectangle(drawMat, psiHatQ - cv::Point(RADIUS, RADIUS), psiHatQ + cv::Point(RADIUS + 1, RADIUS + 1), cv::Scalar(0, 0, 255));
+		//    showMat("red - psiHatQ", drawMat, 1000);
+		//}
+
+		//完成置换
+		endtime = clock();
+		caluDistanceTime += endtime - startTime;
+
+		startTime = clock();
+		transferPatch(psiHatQ, psiHatP, grayMat, (maskMat == 0));
+		transferPatch(psiHatQ, psiHatP, colorMat, (maskMat == 0));
+		endtime = clock();
+		caluTransferTime += endtime - startTime;
+
+		startTime = clock();
+		//更新C矩阵与掩膜
+		double confidence = computeConfidence(psiHatPConfidence);
+		assert(0 <= confidence && confidence <= 1.0f);
+		psiHatPConfidence.setTo(confidence, (psiHatPConfidence == 0.0f));
+		maskMat = (confidenceMat != 0.0f);
+		endtime = clock();
+		updateTime += endtime - startTime;
+	}
+
+	//showMat("final result", colorMat, 0);
+	string num = "0";
+	if (a == 1.0) {
+		num += "0";
+	}
+	else {
+		num[0] += (int)((a + 0.05) * 10);
+	}
+	num += (string)".jpg";
+	cout << num << endl;
+	saveImage(colorMat, saveFile + "test" + num);
+	return 1;
+}
+
+int main(int argc, char** argv) {
+
+	for (double a = 1.0; a <= 1.0; a += 0.1) {
+		Test(argc, argv, a, 1.0 - a);
+	}
+	return 0;
 }

@@ -144,14 +144,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="MainTest.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Test_Compiler.cpp" />
-    <ClCompile Include="Test_OpenCV4.cpp" />
+    <ClCompile Include="Test_Compiler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Test_OpenCV4.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="function.h" />
+    <ClInclude Include="function.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="utils.hpp" />
+    <ClInclude Include="param.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="dog.jpg" />
+    <Image Include="jump.png" />
+    <Image Include="people.jpg" />
+    <Image Include="BlackGaryImage.jpg" />
+    <Image Include="BlackGaryImageMask.jpg" />
+    <Image Include="doctor.jpg" />
+    <Image Include="test.jpg" />
+    <Image Include="treeImage.jpg" />
+    <Image Include="treeMask.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

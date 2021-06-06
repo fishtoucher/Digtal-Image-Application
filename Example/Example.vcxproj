@@ -94,6 +94,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -118,13 +119,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\opencv\build\x64\vc15\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);C:\opencv\build\x64\vc15\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_world451d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,26 +146,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Image Include="..\treeImage.jpg" />
-    <Image Include="..\treeMask.jpg" />
     <Image Include="20HK.jpg" />
     <Image Include="20HKmask.jpg" />
     <Image Include="55s.jpg" />
     <Image Include="55smask.jpg" />
-    <Image Include="inpainting-master\example.gif" />
-    <Image Include="inpainting-master\inpainting\input-alpha.png" />
-    <Image Include="inpainting-master\inpainting\input-color.png" />
+    <Image Include="doctor.jpg" />
+    <Image Include="jump.png" />
+    <Image Include="treeImage.jpg" />
+    <Image Include="treeMask.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="inpainting-master\inpainting\inpainting.cpp" />
     <ClCompile Include="inpainting-master\inpainting\main.cpp" />
-    <ClCompile Include="inpainting-master\inpainting\test.cpp" />
     <ClCompile Include="inpainting-master\inpainting\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inpainting-master\inpainting\inpainting.hpp" />
-    <ClInclude Include="inpainting-master\inpainting\test.hpp" />
     <ClInclude Include="inpainting-master\inpainting\utils.hpp" />
+    <ClInclude Include="param.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
