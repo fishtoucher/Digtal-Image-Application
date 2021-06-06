@@ -33,11 +33,11 @@
     <Filter Include="Source Files\POJ">
       <UniqueIdentifier>{e202b0c9-349a-44bb-aaa6-23c1f50a53f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Image">
-      <UniqueIdentifier>{b7cde888-5119-4c89-864a-212359dc167a}</UniqueIdentifier>
+    <Filter Include="Resource Files\image">
+      <UniqueIdentifier>{8dc2a69d-4a97-44df-9e96-d57bbb18656b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\mask">
-      <UniqueIdentifier>{6785346d-5770-4761-84a2-d64ba5039bdf}</UniqueIdentifier>
+      <UniqueIdentifier>{16edd967-8146-4b55-bd71-dbcd12b788dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -89,51 +89,34 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Image\BlackRound.png">
-      <Filter>Resource Files\Image</Filter>
-    </Image>
-    <Image Include="test.png">
-      <Filter>Resource Files\Image</Filter>
-    </Image>
-    <Image Include="Image\mask4.jpg">
-      <Filter>Resource Files\mask</Filter>
-    </Image>
-    <Image Include="Image\image4.jpg">
-      <Filter>Resource Files\Image</Filter>
-    </Image>
-    <Image Include="Image\image1.jpg">
-      <Filter>Resource Files\Image</Filter>
-    </Image>
-    <Image Include="Image\mask1.jpg">
-      <Filter>Resource Files\mask</Filter>
-    </Image>
-    <Image Include="Image\image3.jpg">
-      <Filter>Resource Files\Image</Filter>
-    </Image>
-    <Image Include="Image\image7.jpg">
-      <Filter>Resource Files\Image</Filter>
-    </Image>
-    <Image Include="Image\mask3.jpg">
-      <Filter>Resource Files\mask</Filter>
-    </Image>
-    <Image Include="Image\mask7.jpg">
-      <Filter>Resource Files\mask</Filter>
-    </Image>
-    <Image Include="Image\image5.jpg">
-      <Filter>Resource Files\Image</Filter>
-    </Image>
-    <Image Include="Image\mask5.jpg">
-      <Filter>Resource Files\mask</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="rec510.cpp">
-      <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="CVQT.h">
       <Filter>Header Files\POJ</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="image\s1.jpg">
+      <Filter>Resource Files\image</Filter>
+    </Image>
+    <Image Include="image\s2.jpg">
+      <Filter>Resource Files\image</Filter>
+    </Image>
+    <Image Include="image\s3.jpg">
+      <Filter>Resource Files\image</Filter>
+    </Image>
+    <Image Include="image\s4.jpg">
+      <Filter>Resource Files\image</Filter>
+    </Image>
+    <Image Include="mask\s1_mask.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+    <Image Include="mask\s2_mask.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+    <Image Include="mask\s3_mask.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
+    <Image Include="mask\s4_mask.jpg">
+      <Filter>Resource Files\mask</Filter>
+    </Image>
   </ItemGroup>
 </Project>

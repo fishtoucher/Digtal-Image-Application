@@ -5,8 +5,3 @@ C/C++\常规\附加包含目录	C:\opencv\build\x64\vc15\lib
 链接器\常规\附加库目录	C:\opencv\build\x64\vc15\lib
 链接器\输入\附加依赖项	opencv_world451d.lib
 
-LocalBranch
-
-GtiHub Test
-
-

@@ -117,23 +117,6 @@
     <QtMoc Include="CriminisiJob.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Image\BlackRound.png" />
-    <Image Include="Image\image1.jpg" />
-    <Image Include="Image\image3.jpg" />
-    <Image Include="Image\image4.jpg" />
-    <Image Include="Image\image5.jpg" />
-    <Image Include="Image\image7.jpg" />
-    <Image Include="Image\mask1.jpg" />
-    <Image Include="Image\mask3.jpg" />
-    <Image Include="Image\mask4.jpg" />
-    <Image Include="Image\mask5.jpg" />
-    <Image Include="Image\mask7.jpg" />
-    <Image Include="test.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="rec510.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <QtMoc Include="SrcImageWidget.h" />
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +124,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CVQT.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="image\s1.jpg" />
+    <Image Include="image\s2.jpg" />
+    <Image Include="image\s3.jpg" />
+    <Image Include="image\s4.jpg" />
+    <Image Include="mask\s1_mask.jpg" />
+    <Image Include="mask\s2_mask.jpg" />
+    <Image Include="mask\s3_mask.jpg" />
+    <Image Include="mask\s4_mask.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

@@ -17,15 +17,6 @@ bool cmp2(const Pv& a, const Pv& b) {
 
 bool CriminisiJob::solve() {
 
-	Mat src_patch = imread("E:/Visual_Studio_code/Digtal Image/GUI/Image/Final/patch.jpg");
-	Mat src_patchrt = imread("E:/Visual_Studio_code/Digtal Image/GUI/Image/Final/patch_rt.jpg");
-	Mat mask_one = Mat(src_patch.size(),CV_8UC1,1);
-	Mat ressss;
-	double bas = matchTemplate_HELLINGER(src_patch,src_patchrt, mask_one);
-	matchTemplate(src_patch, src_patchrt, ressss, CV_TM_SQDIFF, mask_one);
-	double ssd = ressss.at<float>(0, 0);
-
-
 	outfile.open("data.txt");
 
 	if (!imagesIsReady()) {
