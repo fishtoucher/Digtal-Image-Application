@@ -28,6 +28,13 @@ int main(int argc, char *argv[])
     app.connect(&cjob, &CriminisiJob::srcImageisready, &w, &GUI::showMatImage);
     app.connect(&w, &GUI::maskImageIsReady, &cjob, &CriminisiJob::receiveMaskImage);
 
+    //设置进度条
+    app.connect(&config, &Config::processBarValue, &w, &GUI::setProgressBar);
+
+    //结果显示，多线程需要注册元类型
+    app.connect(&cjob, &CriminisiJob::criminisiJobIsFinish, &config, &Config::receiveCriminisiJob);
+    app.connect(&config, &Config::configJobIsFinish, &w, &GUI::receiveResultImage);
+
     w.show();
     app.exec();
 

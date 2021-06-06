@@ -19,6 +19,11 @@ struct Patch {
 	Mat patch;
 };
 
+struct Pv {
+	Point pos;
+	double value;
+};
+
 struct speedup {
 	bool isuseable;
 	Vec2f value;
@@ -34,9 +39,12 @@ class CriminisiJob :public QObject {
 
 public:
 	Mat srcImage;//À©Õ¹ºÚ±ß
+	Mat lastSrcImage;
 	Mat grayImage;
 
 	Mat maskImage;//À©Õ¹°×±ß
+	Mat lastMaskImage;
+
 	Mat maskErodeImage;
 	Mat maskImage0;
 	Mat maskErodeImage0;
@@ -56,6 +64,8 @@ public:
 	bool imagesIsReady();
 	bool solve();
 
+
+
 private:
 	void getMaxPriorityPatch(Patch& P);
 	double computePriority(const vector<Point>& border, const Point& pos, const int order);
@@ -68,7 +78,7 @@ private:
 	void getContoursFromMaskImage(vector<vector<Point>>& contours);
 
 	void getMinDistancePatch(Patch& Q, const Patch& P);
-	void matchTemplate_HELLINGER(const Mat& tempsrc, const Mat& temp, Mat& result, const Mat& mask);
+	double matchTemplate_HELLINGER(const Mat& tempsrc, const Mat& temp, const Mat& mask);
 	void transferPatch(const Patch& P, const Patch& Q);
 
 	void updateAll(const Point& pos, const Point& posq);
@@ -82,7 +92,7 @@ private:
 
 signals:
 	void srcImageisready(const Mat &srcImage);
-	void jobIsFinish(const Mat& resultImage);
+	void criminisiJobIsFinish();
 
 public slots:
 	void receiveImagefilename();

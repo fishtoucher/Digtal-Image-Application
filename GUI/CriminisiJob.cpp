@@ -4,83 +4,39 @@
 
 #include <fstream>
 #include "qdebug.h"
+#include "QtConcurrent"
 
 using namespace cv;
 using namespace std;
 
 extern Config config;
 
+bool cmp2(const Pv& a, const Pv& b) {
+	return a.value < b.value;
+}
+
 bool CriminisiJob::solve() {
+
+	Mat src_patch = imread("E:/Visual_Studio_code/Digtal Image/GUI/Image/Final/patch.jpg");
+	Mat src_patchrt = imread("E:/Visual_Studio_code/Digtal Image/GUI/Image/Final/patch_rt.jpg");
+	Mat mask_one = Mat(src_patch.size(),CV_8UC1,1);
+	Mat ressss;
+	double bas = matchTemplate_HELLINGER(src_patch,src_patchrt, mask_one);
+	matchTemplate(src_patch, src_patchrt, ressss, CV_TM_SQDIFF, mask_one);
+	double ssd = ressss.at<float>(0, 0);
+
+
 	outfile.open("data.txt");
-
-	//Mat src_;
-	//src_ = imread("E:/Visual_Studio_code/Digtal Image/GUI/Image/isophote/8.jpg");
-	//src_.setTo(255, src_ > 125);
-	//src_.setTo(0, src_ <= 125);
-	//Mat grayImage_, edge_;
-	//cvtColor(src_, grayImage_, COLOR_BGR2GRAY);
-	//blur(grayImage_, edge_, Size(3, 3));
-	//Canny(edge_, edge_, 3, 9, 3);
-	//imshow("Canny算法轮廓提取效果", edge_);
-
-	//vector<vector<Point>> contour;
-	//findContours(edge_, contour, 1, 1);
-	//vector<Point> mycontour = contour[1];
-
-	//Mat answer(edge_.size(), CV_64FC1);
-
-	//Mat ROI_test = imread("E:/Visual_Studio_code/Digtal Image/GUI/Image/isophote/8.jpg", IMREAD_GRAYSCALE);
-	//vector<double> kkk;
-	//int k = 7;
-
-	//for (int i = 0; i < mycontour.size(); i++) {
-	//	int x = mycontour[i].x;
-	//	int y = mycontour[i].y;
-
-	//	Mat ROI_gradx, ROI_grady, ROI_angle;
-	//	Mat ROI = ROI_test(Rect(x - k / 2, y - k / 2, k, k));
-	//	Sobel(ROI, ROI_gradx, CV_64FC1, 1, 0, k);
-	//	Sobel(ROI, ROI_grady, CV_64FC1, 0, 1, k);
-	//	phase(ROI_gradx, ROI_grady, ROI_angle, true);
-
-	//	double tempv = ROI_angle.at<double>(k/2, k/2);
-	//	kkk.push_back(tempv);
-	//	answer.at<double>(y, x) = tempv;
-	//}
-
-	//sort(kkk.begin(), kkk.end());
-	//for (int i = 0; i < kkk.size(); i++) {
-	//	outfile << kkk[i] << endl;//输出信息到data.txt文件
-	//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	if (!imagesIsReady()) {
 		return false;
 	}
 
 	int r = config.getpatchsize() / 2;
+	double srcSize = srcImage.rows * srcImage.cols;
+	cout << "SrcImageSize: " << srcImage.rows << "pixs * " << srcImage.cols << "pixs" << endl;
+	
+	
 	initImage();
 
 	//算法计时
@@ -89,11 +45,18 @@ bool CriminisiJob::solve() {
 	int looptimes(0);
 	//破损区域大小
 	brokensize = countNonZero(maskImage == 0);
+	double brokenRate = brokensize / srcSize;
+	cout << "brokensize: " << brokensize << endl;
+	cout << "broken: " << brokenRate * 100 << "%" << endl;
+
 	//完成进度
 	int process(0);
 
 	while (isComplete(process) == false) {
-		cout << process << endl;
+		
+		//进度条触发
+		emit config.processBarValue(process);
+		
 		looptimes += 1;
 
 		clock_t startTime,endtime;
@@ -103,6 +66,8 @@ bool CriminisiJob::solve() {
 		getMaxPriorityPatch(P);
 		endtime = clock();
 		caluPriorityTime += endtime - startTime;
+
+		assert(P.pos.x >= r && P.pos.y >= r);
 
 		startTime = clock();
 		getMinDistancePatch(Q, P);
@@ -114,9 +79,9 @@ bool CriminisiJob::solve() {
 		endtime = clock();
 		caluTransferTime += endtime - startTime;
 
-		//Mat drawMat = resultImage.clone();
-		//rectangle(drawMat, P.pos - Point(r, r), P.pos + Point(r + 1, r + 1), cv::Scalar(255, 0, 0));
-		//rectangle(drawMat, Q.pos - Point(r, r), Q.pos + Point(r + 1, r + 1), cv::Scalar(0, 0, 255));
+		Mat drawMat = resultImage.clone();
+		rectangle(drawMat, P.pos - Point(r, r), P.pos + Point(r + 1, r + 1), cv::Scalar(255, 0, 0));
+		rectangle(drawMat, Q.pos - Point(r, r), Q.pos + Point(r + 1, r + 1), cv::Scalar(0, 0, 255));
 		//namedWindow("Debug");
 		//imshow("Debug", drawMat);
 		//waitKey(500);
@@ -128,11 +93,35 @@ bool CriminisiJob::solve() {
 		updateTime += endtime - startTime;
 	}
 
+	//更新进度条的100%进度
+	emit config.processBarValue(process);
+
+	//关闭文件流
 	outfile.close();
+
 	//计算SSIM与PSNR
 	double src_res_ssim = ssim(srcImage, resultImage);
 	double src_res_psnr = psnr(srcImage, resultImage);
 
+	//装配Config
+	config.SSIMresult = src_res_ssim;
+	config.PSNRresult = src_res_psnr;
+	config.result = resultImage.clone();
+
+	//内存释放
+	int rows = srcImage.rows;
+	int cols = srcImage.cols;
+	for (int i = 0; i < cols; i++) {
+		delete[] normalFlag[i];
+		delete[] isophotesFlag[i];
+	}
+	delete[] normalFlag;
+	delete[] isophotesFlag;
+
+	config.isMaskUpdate = false;
+	config.isSrcUpdate = false;
+
+	emit criminisiJobIsFinish();	
 	return true;
 }
 
@@ -144,22 +133,25 @@ void CriminisiJob::getMaxPriorityPatch(Patch& P) {
 
 	double maxpriority = -1;
 	int numi = contours.size();
+	int r = config.getpatchsize() / 2;
 	//getIsophotesImage();
 	
 	for (int i = 0; i < numi; i++) {
 		int numj = contours[i].size();
 		for (int j = 0; j < numj; j++) {
+
 			double temp = computePriority(contours[i], contours[i][j], j);
-
 			//cout << "Point:" << contours[i][j] << ": " << temp << endl;
-
 			if (temp > maxpriority) {
 				P.pos = contours[i][j];
 				P.patch = getPatch(resultImage, P.pos);
 				maxpriority = temp;
+				
 			}
 		}
 	}
+
+	outfile << maxpriority << endl;
 
 	int dis = config.getpatchsize();
 	for (int i = 0; i < numi; i++) {
@@ -222,6 +214,7 @@ double CriminisiJob::computeConfidence(const Mat& _confidenceImage, const Point&
 
 clock_t NormalTime(0),IsophotesTime(0);
 double CriminisiJob::computeData(const vector<Point>& border, const Point& pos, const int order) {
+	
 
 	clock_t s, e;
 	s = clock();
@@ -235,11 +228,12 @@ double CriminisiJob::computeData(const vector<Point>& border, const Point& pos, 
 	IsophotesTime += e - s;
 
 	//double ans = norm(isophote);
+	//注意norm的约束
 	//double ans = abs(normal.dot(isophote/norm(isophote)));
 	double ans = abs(normal.dot(isophote));
 
 	//cout << "Normal:" << normal << " ";
-	//cout << "Isophotes:" << isophote << " ";
+	//cout << "Isophotes:" << isophote << endl;
 	//cout << "Data:" << ans << " " << endl;
 
 	return ans;
@@ -254,7 +248,7 @@ Vec2f CriminisiJob::computeNormal(const vector<Point>& contours, const Point& po
 	}
 
 	int method = config.getComputeNormalMethod();
-	int size = 5;
+	int size = config.getSobelSize();
 	int r = size / 2;
 	Vec2f ans;
 	Mat ROI, ROI_gradx, ROI_grady;
@@ -368,20 +362,64 @@ clock_t tempt(0);
 void CriminisiJob::getMinDistancePatch(Patch& Q, const Patch& P) {
 	int method = config.getCompiteDistanceMethod();
 	int size = config.getpatchsize();
+	int rows, cols, pnum;
+	double minvalue = INFINITY;
 	int r = size / 2;
 	Mat mask = getBorderMask(P.pos, false);
 	Mat matchResult = Mat(resultImage.rows - size + 1, resultImage.cols - size + 1, CV_32FC1, 0.0);
+	Mat SSDresult = Mat(resultImage.rows - size + 1, resultImage.cols - size + 1, CV_32FC1, 0.0);
+	vector<Pv> points;
 
 	switch (method) {
+	clock_t startTime, endtime;
+	
 	case 1:
-		clock_t startTime, endtime;
 		startTime = clock();
+
 		matchTemplate(resultImage, P.patch, matchResult, CV_TM_SQDIFF, mask);
+
 		endtime = clock();
 		tempt += endtime - startTime;
 		break;
+
 	case 2:
-		matchTemplate_HELLINGER(grayImage, P.patch, matchResult, mask);
+		startTime = clock();
+
+		matchTemplate(resultImage, P.patch, SSDresult, CV_TM_SQDIFF, mask);
+		normalize(SSDresult, SSDresult, 0, 1, NORM_MINMAX);
+		rows = SSDresult.rows;
+		cols = SSDresult.cols;
+
+		copyMakeBorder(SSDresult, SSDresult, r, r, r, r, BORDER_CONSTANT, 1.1);
+		SSDresult.setTo(1.1, maskErodeImage0 == 0);
+		SSDresult.setTo(1.1, maskErodeImage == 0);
+
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				Pv temp;
+				temp.pos = Point(j, i);
+				temp.value = SSDresult.at<float>(i + r, j + r);
+				points.push_back(temp);
+			}
+		}
+		sort(points.begin(), points.end(), cmp2);
+		pnum = 2 * sqrt(rows * rows + cols * cols);
+		for (int i = 0; i < pnum; i++) {
+			Point pos = points[i].pos;
+			Mat ROI = srcImage(Rect(pos.x, pos.y, size, size));
+			double Ba_value = matchTemplate_HELLINGER(ROI, P.patch, mask);
+			double SSD_value = points[i].value;
+			double temp_value = Ba_value * 0.3 + SSD_value * 0.7;
+			if (temp_value < minvalue) {
+				minvalue = temp_value;
+				Q.pos = Point(pos.x + r, pos.y + r);
+			}
+		}
+		Q.patch = getPatch(resultImage, Q.pos);
+
+		endtime = clock();
+		tempt += endtime - startTime;
+		return;
 		break;
 	case 3:
 		Mat confidecnMask = getPatch(confidenceImage, P.pos);
@@ -395,13 +433,11 @@ void CriminisiJob::getMinDistancePatch(Patch& Q, const Patch& P) {
 	matchResult.setTo(1.1, maskErodeImage0 == 0);
 	matchResult.setTo(1.1, maskErodeImage == 0);
 	minMaxLoc(matchResult, NULL, NULL, &Q.pos);
+
 	Q.patch = getPatch(resultImage, Q.pos);
 }
 
-void CriminisiJob::matchTemplate_HELLINGER(const Mat& tempsrc, const Mat& temp, Mat& result, const Mat& mask) {
-	int size = config.getpatchsize();
-	int rows = tempsrc.rows - size + 1;
-	int cols = tempsrc.cols - size + 1;
+double CriminisiJob::matchTemplate_HELLINGER(const Mat& tempsrc, const Mat& temp, const Mat& mask) {
 
 	const int channels[1] = { 0 };
 	float inRanges[2] = { 0,255 };
@@ -409,20 +445,14 @@ void CriminisiJob::matchTemplate_HELLINGER(const Mat& tempsrc, const Mat& temp, 
 	const int bins[1] = { 256 };
 
 	Mat patchHist, srchist;
-	Mat ROI_srcImage;
+	Mat grayPatch,graySrc;
 
-	Mat grayPatch;
 	cvtColor(temp, grayPatch, CV_BGR2GRAY);
-	calcHist(&temp, 1, channels, mask, patchHist, 1, bins, ranges);
-
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-			ROI_srcImage = tempsrc(Rect(j, i, size, size));
-			calcHist(&ROI_srcImage, 1, channels, mask, srchist, 1, bins, ranges);
-			double ans = compareHist(patchHist, srchist, HISTCMP_HELLINGER);
-			result.at<float>(i,j)=ans;
-		}
-	}
+	cvtColor(tempsrc, graySrc, CV_BGR2GRAY);
+	calcHist(&grayPatch, 1, channels, mask, patchHist, 1, bins, ranges);
+	calcHist(&graySrc, 1, channels, mask, srchist, 1, bins, ranges);
+	double ans = compareHist(patchHist, srchist, HISTCMP_HELLINGER);
+	return ans;
 }
 
 void CriminisiJob::transferPatch(const Patch& P, const Patch& Q) {
@@ -482,6 +512,27 @@ Mat CriminisiJob::getBorderMask(const Point& pos, bool iserode) {
 //==============================functions===============================//
 
 void CriminisiJob::initImage() {
+
+	grayImage.release();
+	maskErodeImage.release();
+	maskImage0.release();
+	maskErodeImage0.release();
+	resultImage.release();
+	confidenceImage.release();
+
+	if (config.isMaskUpdate == false) {
+		maskImage = lastMaskImage.clone();
+	}
+	else {
+		lastMaskImage = maskImage;
+	}
+
+	if (config.isSrcUpdate == false) {
+		srcImage = lastSrcImage.clone();
+	}
+	else {
+		lastSrcImage = srcImage;
+	}
 
 	maskImage.setTo(255, maskImage >= 245);
 	maskImage.setTo(0, maskImage <= 10);
@@ -605,6 +656,6 @@ void CriminisiJob::receiveMaskImage(const Mat& srcMaskImage, const int type) {
 	if (type == 1) {
 		maskImage = srcMaskImage.clone();
 	}
-	solve();
-	emit jobIsFinish(resultImage);
+	QtConcurrent::run(this, &CriminisiJob::solve);
+	//solve();
 }

@@ -7,11 +7,32 @@ Config::Config(QObject *parent):QObject(parent){
 	_B = 0.382;
 	confidenceFactor = 0.3;
 
-	patchsize = 13;
+	//样本块尺寸
+	patchsize = 9;
+	//置信度计算方式
 	computeConfidenceMethod = 1;
+	//优先权计算方式
 	computePriorityMethod = 1;
+	//法向量计算方式
 	computeNormalMethod = 1;
+	//最优块匹配方式
 	compiteDistanceMethod = 1;
+
+	isMaskUpdate = false;
+	isSrcUpdate = false;
+
+	SobelSize = 5;
+}
+
+int Config::getSobelSize() {
+	return SobelSize;
+}
+void Config::setSobelSize(int size) {
+	SobelSize = size;
+}
+
+void Config::receiveCriminisiJob() {
+	emit configJobIsFinish(result);
 }
 
 void Config::setConfidenceMethod(int value, double A) {

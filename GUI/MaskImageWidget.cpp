@@ -1,5 +1,6 @@
 #include "MaskImageWidget.h"
 #include "CVQT.h"
+#include "Config.h"
 
 #include "qpushbutton.h"
 #include "qdebug.h"
@@ -13,6 +14,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/opencv.hpp"
 
+extern Config config;
 using namespace cv;
 
 MaskImageWidget::MaskImageWidget(QWidget* parent) : QWidget(parent)
@@ -80,6 +82,7 @@ void MaskImageWidget::makeMaskImage() {
         split(tempmaskImage, maskImages);
         maskImages[0].copyTo(maskImage);
         maskImage.setTo(255, maskImage);
+        config.isMaskUpdate = true;
     }
     emit maskImageIsReady(maskImage, k);
 }

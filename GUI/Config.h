@@ -6,7 +6,11 @@
 #include<qobject.h>
 #include<iostream>
 
+#include "opencv2/core/core.hpp"
+#include "opencv2/opencv.hpp"
+
 using namespace std;
+using namespace cv;
 
 class Config : public QObject{
 
@@ -17,6 +21,7 @@ private:
 
 	string srcfilename;
 	string maskfilename;
+	
 
 	int computePriorityMethod;//1 乘法；2 A*C+B*D
 	double _A, _B;
@@ -27,8 +32,21 @@ private:
 	int computeNormalMethod;//1 Sobel;2 拟合（最小二乘法）
 	int compiteDistanceMethod;//1 SSD;2 巴氏
 
+	int SobelSize;
+
+public:
+	Mat result;
+	double SSIMresult;
+	double PSNRresult;
+
+	bool isMaskUpdate;
+	bool isSrcUpdate;
+
 public:
 	explicit Config(QObject* parent = 0);
+
+	int getSobelSize();
+	void setSobelSize(int size);
 
 	int getpatchsize();
 	bool setpatchsize(int size);
@@ -58,9 +76,14 @@ signals:
 	void filenameisready();
 	void maskfilenameisready();
 
+	void processBarValue(int v);
+	void configJobIsFinish(const Mat& result);
+
 public slots:
 	void recvivefilename(QString filename);
 	void recvivemaskfilename(QString filename);
+
+	void receiveCriminisiJob();
 };
 
 #endif
