@@ -22,6 +22,8 @@ Config::Config(QObject *parent):QObject(parent){
 	isSrcUpdate = false;
 
 	SobelSize = 5;
+
+	isShowProcess = false;
 }
 
 int Config::getSobelSize() {

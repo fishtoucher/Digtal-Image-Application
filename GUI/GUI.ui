@@ -435,6 +435,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="srcImageCheckBox">
+            <property name="text">
+             <string>显示原图</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -626,6 +633,26 @@
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="resetPushButton">
+            <property name="text">
+             <string>重置</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_15">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>

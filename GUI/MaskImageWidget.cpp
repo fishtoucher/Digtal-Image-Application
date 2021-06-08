@@ -72,6 +72,7 @@ void MaskImageWidget::mouseMoveEvent(QMouseEvent* mouseevent) {
 }
 
 void MaskImageWidget::makeMaskImage() {
+
     Mat maskImage;
     int k = 0;
     if (isDrawed) {

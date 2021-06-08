@@ -6,8 +6,10 @@
 #include "qevent.h"
 #include "qpainter.h"
 #include "qpushbutton.h"
+#include "qmessagebox.h"
 
 #include "Config.h"
+#include "CVQT.h"
 
 extern Config config;
 
@@ -27,11 +29,15 @@ GUI::GUI(QWidget* parent)
     compiteDistanceMethod = 1;
     SobelSize = 5;
 
+    isRunning = false;
+
     QMenuBar* menubar = ui.menuBar;
     QAction* actionopen = ui.actionOpen;
+    QAction* actionsave = ui.actionSave;
     QPushButton* restorePushButton = ui.restorePushButton;
     QPushButton* drawMaskPushButton = ui.drawMaskPushButton;
     QPushButton* loadMaskPushButton = ui.loadMaskPushButton;
+    QPushButton* resetPushButton = ui.resetPushButton;
     MaskImageWidget* maskImageWidget = ui.maskImageWidget;
     SrcImageWidget* srcImageWidget = ui.srcImageWidget;
     QProgressBar* progressBar = ui.progressBar;
@@ -45,10 +51,13 @@ GUI::GUI(QWidget* parent)
     srcImageWidget->setFixedSize(450,550);
     maskImageWidget->setFixedSize(450, 550);
     setFixedSize(1500, 700);
+    ui.drawMaskPushButton->setEnabled(false);
+    ui.loadMaskPushButton->setEnabled(false);
+    ui.resetPushButton->setEnabled(false);
+    ui.srcImageCheckBox->setEnabled(false);
 
     //暂时隐藏
     ui.processSlider->setVisible(false);
-    ui.processCheckBox->setVisible(false);
 
     //置信度控件
     confidenceRadioButton_No->setChecked(true);
@@ -144,18 +153,64 @@ GUI::GUI(QWidget* parent)
     connect(ui.matchRadioButton_Confidence, &QRadioButton::clicked, this, [=]() {
         compiteDistanceMethod = 3;
         });
-    //
+    
+    //重置按钮功能
+    connect(resetPushButton, &QPushButton::clicked, this, [=]() {
+        maskImageWidget->isDrawed = true;
+        maskImageWidget->maskImagePixmap = QPixmap(maskImageWidget->maskImagePixmap.size());
+        ui.drawMaskPushButton->setEnabled(true);
+        ui.loadMaskPushButton->setEnabled(true);
+        maskWidgetDrawImage(srcWidgetImage);
+        });
 
-
+    //显示原图按钮功能
+    connect(ui.srcImageCheckBox, &QCheckBox::stateChanged, this, [=]() {
+        if (srcWidgetImage.empty() || resultWidgetImage.empty()) {
+            QMessageBox::critical(NULL, "warning!", "There has no SrcImage or ResultImage!", QMessageBox::Yes);
+            ui.srcImageCheckBox->setChecked(!ui.srcImageCheckBox->isChecked());
+            return;
+        }
+        if (ui.srcImageCheckBox->isChecked()) {
+            
+            maskWidgetDrawImage(srcWidgetImage);
+        }
+        else {
+            int r = config.getpatchsize() / 2;
+            Mat ROI = resultWidgetImage(Rect(r, r, config.nextImage.cols - 2 * r, config.nextImage.rows - 2 * r));
+            maskWidgetDrawImage(ROI);
+        }
+        });
 
     connect(drawMaskPushButton, &QPushButton::clicked, this, [=]() {
         maskImageWidget->drawMaskEnable = drawMaskPushButton->isChecked();
         });
 
     connect(actionopen, &QAction::triggered, this, [=]() {
+        if (isRunning) {
+            QMessageBox::critical(NULL, "warning!", "Program is still running!", QMessageBox::Yes);
+            return;
+        }
         QString filename = QFileDialog::getOpenFileName(this, "openfile");
         config.isSrcUpdate = true;
         emit GUI::sendfilename(filename);
+        });
+
+    connect(actionsave, &QAction::triggered, this, [=]() {
+        if (isRunning) {
+            QMessageBox::critical(NULL, "warning!", "Program is still running!", QMessageBox::Yes);
+            return;
+        }
+        if (config.result.empty()) {
+            QMessageBox::critical(NULL, "warning!", "No Image!", QMessageBox::Yes);
+            return;
+        }
+        QString filename = QFileDialog::getSaveFileName(this, "save as", "./", "Image(*.jpg)");
+
+        int r = config.getpatchsize() / 2;
+        Mat ROI = config.result(Rect(r, r, config.nextImage.cols - 2 * r, config.nextImage.rows - 2 * r));
+
+        QImage tempImage = CVQT::cvMatToQImage(ROI);
+        tempImage.save(filename);
         });
 
     connect(loadMaskPushButton, &QPushButton::clicked, this, [=]() {
@@ -168,22 +223,50 @@ GUI::GUI(QWidget* parent)
         }
         });
 
-    connect(restorePushButton, &QPushButton::clicked, maskImageWidget, &MaskImageWidget::makeMaskImage);
-
     //设置配置文件
     connect(restorePushButton, &QPushButton::clicked, maskImageWidget, [=]() {
+        if (srcWidgetImage.empty()) {
+            QMessageBox::critical(NULL, "warning!", "There has no Image!", QMessageBox::Yes);
+            return;
+        }
+        if (isRunning) {
+            QMessageBox::critical(NULL, "warning!", "Program is still running!", QMessageBox::Yes);
+            return;
+        }
+        ui.drawMaskPushButton->setEnabled(false);
+        ui.loadMaskPushButton->setEnabled(false);
+        ui.resetPushButton->setEnabled(false);
+        ui.srcImageCheckBox->setEnabled(false);
+        isRunning = true;
+
         config.setConfidenceMethod(computeConfidenceMethod, confidenceFactor);
         config.setpatchsize(patchsize);
         config.setComputeNormalMethod(computeNormalMethod);
         config.setCompiteDistanceMethod(compiteDistanceMethod);
         config.setComputePriorityMethod(computePriorityMethod, _A, _B);
         config.setSobelSize(SobelSize);
+
+        ui.maskImageWidget->makeMaskImage();
         });
     connect(maskImageWidget, &MaskImageWidget::maskImageIsReady, this, &GUI::receiveMatImage);
 }
 
 
 //====================================slots====================================//
+
+void GUI::updateMaskImage(const int type) {
+
+    if (type == 1 && ui.processCheckBox->isChecked() == false) {
+        config.isShowProcess = false;
+        return;
+    }
+    if (ui.processCheckBox->isChecked()) {
+        config.isShowProcess = true;
+    }
+    int r = config.getpatchsize() / 2;
+    Mat ROI = config.nextImage(Rect(r, r, config.nextImage.cols - 2 * r, config.nextImage.rows - 2 * r));
+    maskWidgetDrawImage(ROI);
+}
 
 void GUI::setProgressBar(int value) {
     ui.progressBar->setValue(value);
@@ -202,8 +285,21 @@ void GUI::maskWidgetDrawImage(const Mat& image) {
 }
 
 void GUI::receiveResultImage(const Mat& resultImage) {
-    maskWidgetDrawImage(resultImage);
-    ui.drawMaskPushButton->setEnabled(false);
+    resultWidgetImage = resultImage.clone();
+
+    int r = config.getpatchsize() / 2;
+    Mat ROI = resultWidgetImage(Rect(r, r, config.nextImage.cols - 2 * r, config.nextImage.rows - 2 * r));
+    maskWidgetDrawImage(ROI);
+
+    ui.drawMaskPushButton->setChecked(false);
+    ui.maskImageWidget->drawMaskEnable = false;
+    //ui.drawMaskPushButton->setEnabled(true);
+    //ui.loadMaskPushButton->setEnabled(true);
+    ui.resetPushButton->setEnabled(true);
+    ui.srcImageCheckBox->setEnabled(true);
+    ui.srcImageCheckBox->setChecked(false);
+    isRunning = false;
+
     ui.SSIMLabel->setNum(config.SSIMresult);
     ui.PSNRLabel->setNum(config.PSNRresult);
 }
@@ -212,6 +308,15 @@ void GUI::showMatImage(const Mat& Image) {
     Mat qtImage;
     cvtColor(Image, qtImage, COLOR_BGR2RGB);
     QImage disImage = QImage((const unsigned char*)(qtImage.data), qtImage.cols, qtImage.rows, qtImage.cols * qtImage.channels(), QImage::Format_RGB888);
+    
+    srcWidgetImage = Image.clone();
+    resultWidgetImage.release();
+    ui.maskImageWidget->isDrawed = true;
+
+    ui.drawMaskPushButton->setEnabled(true);
+    ui.loadMaskPushButton->setEnabled(true);
+    ui.resetPushButton->setEnabled(true);
+
     QSize tempsize = disImage.size();
     ui.srcImageWidget->setFixedSize(tempsize);
     ui.maskImageWidget->setFixedSize(tempsize);

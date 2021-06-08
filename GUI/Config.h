@@ -36,6 +36,7 @@ private:
 
 public:
 	Mat result;
+	Mat nextImage;
 	double SSIMresult;
 	double PSNRresult;
 
@@ -72,12 +73,15 @@ public:
 	pair<double, double> getAB();
 	double getConfidenceFactor();
 
+	bool isShowProcess;
 signals:
 	void filenameisready();
 	void maskfilenameisready();
 
 	void processBarValue(int v);
 	void configJobIsFinish(const Mat& result);
+
+	void newImage(const int type);
 
 public slots:
 	void recvivefilename(QString filename);

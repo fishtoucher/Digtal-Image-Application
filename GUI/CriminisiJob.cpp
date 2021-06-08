@@ -5,6 +5,7 @@
 #include <fstream>
 #include "qdebug.h"
 #include "QtConcurrent"
+#include "qmessagebox.h"
 
 using namespace cv;
 using namespace std;
@@ -23,65 +24,34 @@ bool CriminisiJob::solve() {
 		return false;
 	}
 
-	int r = config.getpatchsize() / 2;
-	double srcSize = srcImage.rows * srcImage.cols;
-	cout << "SrcImageSize: " << srcImage.rows << "pixs * " << srcImage.cols << "pixs" << endl;
-	
-	
 	initImage();
+	config.nextImage = resultImage.clone();
 
-	//算法计时
-	clock_t caluPriorityTime(0), caluDistanceTime(0), caluTransferTime(0), updateTime(0);
-	//修补次数
-	int looptimes(0);
-	//破损区域大小
+	int looptimes(0);//修补次数
+	int process(0);//完成进度
+	int r = config.getpatchsize() / 2;
 	brokensize = countNonZero(maskImage == 0);
-	double brokenRate = brokensize / srcSize;
-	cout << "brokensize: " << brokensize << endl;
-	cout << "broken: " << brokenRate * 100 << "%" << endl;
-
-	//完成进度
-	int process(0);
 
 	while (isComplete(process) == false) {
-		
-		//进度条触发
-		emit config.processBarValue(process);
-		
-		looptimes += 1;
 
-		clock_t startTime,endtime;
+		emit config.processBarValue(process);//进度条触发
+		looptimes += 1;
 		Patch P,Q;
 
-		startTime = clock();
 		getMaxPriorityPatch(P);
-		endtime = clock();
-		caluPriorityTime += endtime - startTime;
-
-		assert(P.pos.x >= r && P.pos.y >= r);
-
-		startTime = clock();
 		getMinDistancePatch(Q, P);
-		endtime = clock();
-		caluDistanceTime += endtime - startTime;
-
-		startTime = clock();
 		transferPatch(P, Q);
-		endtime = clock();
-		caluTransferTime += endtime - startTime;
 
 		Mat drawMat = resultImage.clone();
 		rectangle(drawMat, P.pos - Point(r, r), P.pos + Point(r + 1, r + 1), cv::Scalar(255, 0, 0));
 		rectangle(drawMat, Q.pos - Point(r, r), Q.pos + Point(r + 1, r + 1), cv::Scalar(0, 0, 255));
-		//namedWindow("Debug");
-		//imshow("Debug", drawMat);
-		//waitKey(500);
-		//destroyWindow("Debug");
+		config.nextImage = drawMat.clone();
+		emit config.newImage(1);
+		if (config.isShowProcess) {
+			QThread::msleep(0);
+		}
 
-		startTime = clock();
 		updateAll(P.pos, Q.pos);
-		endtime = clock();
-		updateTime += endtime - startTime;
 	}
 
 	//更新进度条的100%进度
@@ -125,14 +95,11 @@ void CriminisiJob::getMaxPriorityPatch(Patch& P) {
 	double maxpriority = -1;
 	int numi = contours.size();
 	int r = config.getpatchsize() / 2;
-	//getIsophotesImage();
 	
 	for (int i = 0; i < numi; i++) {
 		int numj = contours[i].size();
 		for (int j = 0; j < numj; j++) {
-
 			double temp = computePriority(contours[i], contours[i][j], j);
-			//cout << "Point:" << contours[i][j] << ": " << temp << endl;
 			if (temp > maxpriority) {
 				P.pos = contours[i][j];
 				P.patch = getPatch(resultImage, P.pos);
@@ -142,7 +109,7 @@ void CriminisiJob::getMaxPriorityPatch(Patch& P) {
 		}
 	}
 
-	outfile << maxpriority << endl;
+	outfile << maxpriority << endl;//记录每次优先权的最大值
 
 	int dis = config.getpatchsize();
 	for (int i = 0; i < numi; i++) {
@@ -198,34 +165,18 @@ double CriminisiJob::computeConfidence(const Mat& _confidenceImage, const Point&
 		break;
 	}
 
-	//cout << "Confidence:" << ans << " ";
-
 	return ans;
 }
 
-clock_t NormalTime(0),IsophotesTime(0);
 double CriminisiJob::computeData(const vector<Point>& border, const Point& pos, const int order) {
-	
 
-	clock_t s, e;
-	s = clock();
 	Vec2f normal = computeNormal(border, pos, order);
-	e = clock();
-	NormalTime += e - s;
-
-	s = clock();
 	Vec2f isophote = computeIsophotes(pos);
-	e = clock();
-	IsophotesTime += e - s;
 
 	//double ans = norm(isophote);
 	//注意norm的约束
 	//double ans = abs(normal.dot(isophote/norm(isophote)));
 	double ans = abs(normal.dot(isophote));
-
-	//cout << "Normal:" << normal << " ";
-	//cout << "Isophotes:" << isophote << endl;
-	//cout << "Data:" << ans << " " << endl;
 
 	return ans;
 }
@@ -306,7 +257,6 @@ Vec2f CriminisiJob::polynomialCurveFit(vector<Point>& points)
 	//求解矩阵A
 	cv::solve(X, Y, A, DECOMP_LU);
 	double a1 = A.at<double>(1, 0);
-	//outfile << abs((atan2(-1 / a1, 1) / 3.1415926) * 180) << endl;
 	if (a1 == 0.0) {
 		return Vec2f(0, 0);
 	}
@@ -349,7 +299,6 @@ Vec2f CriminisiJob::computeIsophotes(const Point& pos) {
 	return ans;
 }
 
-clock_t tempt(0);
 void CriminisiJob::getMinDistancePatch(Patch& Q, const Patch& P) {
 	int method = config.getCompiteDistanceMethod();
 	int size = config.getpatchsize();
@@ -362,25 +311,14 @@ void CriminisiJob::getMinDistancePatch(Patch& Q, const Patch& P) {
 	vector<Pv> points;
 
 	switch (method) {
-	clock_t startTime, endtime;
-	
 	case 1:
-		startTime = clock();
-
 		matchTemplate(resultImage, P.patch, matchResult, CV_TM_SQDIFF, mask);
-
-		endtime = clock();
-		tempt += endtime - startTime;
 		break;
-
 	case 2:
-		startTime = clock();
-
 		matchTemplate(resultImage, P.patch, SSDresult, CV_TM_SQDIFF, mask);
 		normalize(SSDresult, SSDresult, 0, 1, NORM_MINMAX);
 		rows = SSDresult.rows;
 		cols = SSDresult.cols;
-
 		copyMakeBorder(SSDresult, SSDresult, r, r, r, r, BORDER_CONSTANT, 1.1);
 		SSDresult.setTo(1.1, maskErodeImage0 == 0);
 		SSDresult.setTo(1.1, maskErodeImage == 0);
@@ -407,9 +345,6 @@ void CriminisiJob::getMinDistancePatch(Patch& Q, const Patch& P) {
 			}
 		}
 		Q.patch = getPatch(resultImage, Q.pos);
-
-		endtime = clock();
-		tempt += endtime - startTime;
 		return;
 		break;
 	case 3:
@@ -482,9 +417,6 @@ Mat CriminisiJob::getPatch(const Mat& mat, const Point& pos) {
 	return  mat(Range(pos.y - r, pos.y + r + 1), Range(pos.x - r, pos.x + r + 1));
 }
 
-/*
-Type::CV_8UC1 Size::patchsize
-*/
 Mat CriminisiJob::getBorderMask(const Point& pos, bool iserode) {
 	int size = config.getpatchsize();
 	Mat maskFromMaskImage = getPatch(maskImage, pos);
@@ -499,8 +431,6 @@ Mat CriminisiJob::getBorderMask(const Point& pos, bool iserode) {
 
 	return mask;
 }
-
-//==============================functions===============================//
 
 void CriminisiJob::initImage() {
 
@@ -576,23 +506,23 @@ bool CriminisiJob::imagesIsReady() {
 	return true;
 }
 
-
+//计算PSNR
 double  CriminisiJob::psnr(Mat& I1, Mat& I2) {
 	Mat s1;
 	absdiff(I1, I2, s1);
-	s1.convertTo(s1, CV_32F);//转换为32位的float类型，8位不能计算平方
+	s1.convertTo(s1, CV_32F);
 	s1 = s1.mul(s1);
-	Scalar s = sum(s1);  //计算每个通道的和
+	Scalar s = sum(s1);
 	double sse = s.val[0] + s.val[1] + s.val[2];
-	if (sse <= 1e-10) // for small values return zero
+	if (sse <= 1e-10)
 		return 0;
 	else {
-		double mse = sse / (double)(I1.channels() * I1.total()); //  sse/(w*h*3)
+		double mse = sse / (double)(I1.channels() * I1.total());
 		double psnr = 10.0 * log10((255 * 255) / mse);
 		return psnr;
 	}
 }
-
+//计算SSIM
 double  CriminisiJob::ssim(Mat& i1, Mat& i2) {
 	const double C1 = 6.5025, C2 = 58.5225;
 	int d = CV_32F;
@@ -641,6 +571,35 @@ void CriminisiJob::receiveImagefilename() {
 
 void CriminisiJob::receiveMaskfilename() {
 	maskImage = imread(config.getmaskfilename(), 0);
+	Mat tempSrcImage;
+	if (config.isSrcUpdate) {
+		tempSrcImage = srcImage.clone();
+	}
+	else {
+		tempSrcImage = lastSrcImage.clone();
+	}
+	int srcrows = tempSrcImage.rows;
+	int srccols = tempSrcImage.cols;
+
+	int maskrows = maskImage.rows;
+	int maskcols = maskImage.cols;
+	if (srcrows != maskrows || srccols != maskcols) {
+		QMessageBox::critical(NULL, "warning!", "incompatible size!", QMessageBox::Yes);
+		config.isMaskUpdate = false;
+		maskImage.release();
+		return;
+	}
+
+	for (int i = 0; i < tempSrcImage.rows; i++) {
+		for (int j = 0; j < tempSrcImage.cols; j++) {
+			if (maskImage.at<uchar>(i, j) <= 10) {
+				tempSrcImage.at<Vec3b>(i, j) = Vec3b(0,0,0);
+			}
+		}
+	}
+	config.nextImage = tempSrcImage;
+
+	emit loadMaskImageIsReady(2);
 }
 
 void CriminisiJob::receiveMaskImage(const Mat& srcMaskImage, const int type) {

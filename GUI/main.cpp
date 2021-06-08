@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 
     app.connect(&config, &Config::filenameisready, &cjob, &CriminisiJob::receiveImagefilename);
     app.connect(&config, &Config::maskfilenameisready, &cjob, &CriminisiJob::receiveMaskfilename);
+    app.connect(&cjob, &CriminisiJob::loadMaskImageIsReady, &w, &GUI::updateMaskImage);
 
     app.connect(&cjob, &CriminisiJob::srcImageisready, &w, &GUI::showMatImage);
     app.connect(&w, &GUI::maskImageIsReady, &cjob, &CriminisiJob::receiveMaskImage);
@@ -34,6 +35,9 @@ int main(int argc, char *argv[])
     //结果显示，多线程需要注册元类型
     app.connect(&cjob, &CriminisiJob::criminisiJobIsFinish, &config, &Config::receiveCriminisiJob);
     app.connect(&config, &Config::configJobIsFinish, &w, &GUI::receiveResultImage);
+
+    //过程展示
+    app.connect(&config, &Config::newImage, &w, &GUI::updateMaskImage);
 
     w.show();
     app.exec();

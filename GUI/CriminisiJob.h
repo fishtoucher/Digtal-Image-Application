@@ -92,6 +92,7 @@ private:
 
 signals:
 	void srcImageisready(const Mat &srcImage);
+	void loadMaskImageIsReady(const int type);
 	void criminisiJobIsFinish();
 
 public slots:

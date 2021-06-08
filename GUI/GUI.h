@@ -26,6 +26,11 @@ private:
     int compiteDistanceMethod;//1 SSD;2 ∞Õ œ
     int SobelSize;
 
+    Mat srcWidgetImage;
+    Mat resultWidgetImage;
+
+    bool isRunning;
+
 public:
     GUI(QWidget *parent = Q_NULLPTR);
 
@@ -42,4 +47,6 @@ public slots:
     void receiveResultImage(const Mat& resultImage);
 
     void setProgressBar(int value);
+
+    void updateMaskImage(const int type);
 };
