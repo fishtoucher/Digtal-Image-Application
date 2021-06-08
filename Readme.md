@@ -1,6 +1,6 @@
 ### Criminisi算法实现+Qt界面开发
 
-![GIF 2021-6-8 11-01-49](C:\Users\黄铖\Desktop\GIF 2021-6-8 11-01-49.gif)
+![res](https://github.com/fishtoucher/Digtal-Image-Application/blob/master/res.gif)
 
 - 样本块大小可调（7-15，偶数默认取奇数，例如10取9）
 - 置信度更新方式可调
